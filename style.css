@@ -1,0 +1,388 @@
+@import url('https://fonts.googleapis.com/css?family=Sacramento');
+
+
+body {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   height: 100vh;
+   font-family: 'Sacramento', cursive;
+   background-color: #f1e3d3;
+   overflow: hidden;
+   perspective:1200px;              /* NUEVO: perspectiva aplicada al padre */
+   perspective-origin:50% 50%;      /* centra el punto de fuga */
+ }
+ 
+ .valentines-day {
+   position: relative;
+   cursor: pointer;
+   /* perspective: 1200px;  <-- eliminado (ahora en body) */
+ }
+ 
+ .envelope {
+   position: relative;
+   filter: drop-shadow(0 0 25px rgba(0,0,0,.3));
+ }
+ 
+ .envelope:before {
+   content:"";
+   position: absolute;
+   width:254px;
+   height:254px;
+   background-color: #ff9494;
+   transform: rotate(-45deg);
+   border-radius: 0 15px 0 0;
+   left:-37px;
+   top:-82px;
+   opacity:0;
+   transition: opacity .4s;
+ }
+ 
+ .envelope:after {
+   content:"";
+   position: absolute;
+   background-color: #ff9494;
+   width:360px;
+   height:225px;
+   left:-90px;
+   top:45px;
+ }
+ 
+ .letter {
+   position: relative;
+   background:#ffffff;
+   display:inline-block;
+   width:360px;        /* mismo ancho que el sobre */
+   height:225px;       /* misma altura que el sobre */
+   top:45px;           /* alineado con .envelope:after */
+   left:-90px;         /* centrado respecto al sobre */
+   border-radius:8px;
+   filter: drop-shadow(0 -10px 25px rgba(0,0,0,.3));
+   transition:.5s;
+   transform:none;
+   box-sizing:border-box;
+}
+
+.letter:before {
+   /* solapa superior ajustada al nuevo ancho */
+   content:"";
+   position:absolute;
+   left:0;
+   top:0;
+   width:0;
+   height:0;
+   border-left:180px solid transparent;
+   border-right:180px solid transparent;
+   
+}
+
+.letter:after {
+   /* se eliminan las líneas diagonales */
+   content:"";
+   position:absolute;
+   left:0;
+   top:0;
+   width:100%;
+   height:100%;
+   background:none;
+   pointer-events:none;
+   border-radius:8px;
+}
+
+.front {
+   position: absolute;
+   width:0;
+   height:0;
+   border-right: 190px solid #fbd2d2;
+   border-top: 113px solid transparent;
+   border-bottom: 113px solid transparent;
+   top:44px;
+   left:80px;
+   z-index:4;
+ }
+ 
+ .front:before {
+   content:"";
+   position: absolute;
+   width:0;
+   height:0;
+   border-left: 190px solid #fbd2d2;
+   border-top: 113px solid transparent;
+   border-bottom: 113px solid transparent;
+   top:-113px;
+   left:-170px;
+ }
+ 
+ .front:after {
+   width:0;
+   height:0;
+   position: absolute;
+   content:"";
+   border-bottom: 150px solid #fce7e9;
+   border-right:180px solid transparent;
+   border-left: 180px solid transparent;
+   top:-36px;
+   left:-170px;
+ }
+ 
+ .text {
+   position: absolute;
+   font-family: arial;
+   letter-spacing:5px;
+   text-align: center;
+   color: #000; /* antes: white */
+   z-index:2;
+   top:80px;
+   left:15px;
+   transition: .5s;
+ }
+ 
+ .valentines-day:hover .letter {
+   transform: translateY(-132px); 
+ }
+ 
+ .valentines-day:hover .text {
+   transform: translateY(-132px);
+ }
+
+.valentines-day {
+  /* translate anterior (90px,60px) sustituido por el cálculo que centra:
+     Centro desplazado +90px (x) y +157.5px (y) => invertimos con valores negativos */
+  transform: translate(-90px, -157.5px) rotateY(var(--ry)); /* añadimos giro */
+  --ry:0deg;                         /* ángulo actual */
+  transform-style: preserve-3d;      /* mantener profundidad de hijos */
+  transition: transform .9s cubic-bezier(.77,0,.18,1);
+  will-change: transform;
+  /* márgenes de compensación eliminados */
+  /* margin-left: -90px; */
+  /* margin-top: -60px; */
+}
+
+/* Estados de giro (primer click) */
+.valentines-day.flipping,
+.valentines-day.flipped {
+  --ry:180deg;
+}
+
+/* Cara frontal completa (grupo de elementos frontales) */
+.front-face {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  transform: rotateY(180deg);        /* queda de espaldas hasta el flip */
+  transform-style: preserve-3d;
+  backface-visibility:hidden;
+}
+
+/* Sobre cerrado (frontal) */
+.front-closed {
+  position:absolute;
+  top:45px;
+  left:-90px;
+  width:360px;
+  height:225px;
+  z-index:6;
+  pointer-events:none;
+  background: linear-gradient(#fff7f9, #ffd4db);
+  border:2px solid #f9b6c0;
+  border-radius:8px;
+  box-sizing:border-box;
+}
+
+/* Tapa triangular (cerrada) */
+.front-closed:before {
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:0;
+  height:0;
+  border-left:180px solid transparent;
+  border-right:180px solid transparent;
+  border-top:150px solid #fbd2d2;
+}
+
+/* Pliegue inferior */
+.front-closed:after {
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:0;
+  height:0;
+  border-left:180px solid transparent;
+  border-right:180px solid transparent;
+  border-bottom:75px solid #fce7e9;
+}
+
+/* La versión abierta (.front) oculta inicialmente */
+.front {
+  display:none;
+  z-index:8;
+}
+
+/* Estado abierto: se intercambian */
+.valentines-day.open .front {
+  display:block;
+}
+.valentines-day.open .front-closed {
+  display:none;
+}
+
+/* Asegurar que la carta queda debajo mientras cerrado */
+.front-closed ~ .front ~ .letter,
+.front-closed ~ .letter {
+  z-index:5;
+}
+
+/* Al pasar a abierto ya funciona tu hover normal sobre .letter */
+
+/* === Animación solo cuando abierto === */
+.valentines-day:hover .letter,
+.valentines-day:hover .text {
+  /* anulado mientras está cerrado */
+  transform: none;
+}
+
+.valentines-day.open:hover .letter {
+  transform: translateY(-132px);
+}
+
+.valentines-day.open:hover .text {
+  transform: translateY(-132px);
+}
+
+/* Solapa visible solo cuando está abierto */
+.valentines-day.open .envelope:before {
+  opacity:1;
+  transition: opacity .4s .05s; /* pequeño delay opcional */
+}
+
+/* === Parte trasera del sobre === */
+.behind {
+  position:absolute;
+  top:45px;
+  left:-90px;
+  width:360px;
+  height:225px;
+  background:linear-gradient(#ffeef2,#ffc7d2);
+  border:2px solid #f7a9b8;
+  border-radius:8px;
+  box-sizing:border-box;
+  padding:18px 20px 16px;
+  font-family: 'Sacramento', cursive;
+  font-size:34px;
+  line-height:1.1;
+  color:#b4455e;
+  letter-spacing:1px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:10px;
+  z-index:30;
+  backface-visibility:hidden;
+  transform:translateZ(0); /* neutro; mantiene su cara hacia el usuario */
+  transition: opacity .4s;  /* sólo si quieres un leve ajuste de opacidad */
+}
+
+.behind .to,
+.behind .from {
+  font-size:28px;
+  font-family: 'Sacramento', cursive;
+}
+
+.behind span {
+  font-weight:600;
+}
+
+.behind .stamp {
+  position:absolute;
+  top:14px;
+  right:16px;
+  width:60px;
+  height:60px;
+  background:
+    radial-gradient(circle at 30% 30%, #fff 0 35%, transparent 36%),
+    radial-gradient(circle at 65% 55%, #fff 0 28%, transparent 29%),
+    linear-gradient(145deg,#ff7d92,#ff5275);
+  border:4px solid #ffffffaa;
+  box-shadow:0 0 0 2px #e54a67, 0 4px 6px -2px rgba(0,0,0,.25);
+  border-radius:8px;
+  clip-path:polygon(
+    10% 0, 90% 0, 100% 10%, 100% 90%,
+    90% 100%, 10% 100%, 0 90%, 0 10%
+  );
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+}
+
+/* Ocultar (opacidad) el frente mientras no haya volteo */
+/*
+.valentines-day:not(.flipped) .envelope,
+.valentines-day:not(.flipped) .letter,
+.valentines-day:not(.flipped) .text,
+.valentines-day:not(.flipped) .front-closed,
+.valentines-day:not(.flipped) .front {
+  opacity:0;
+  transition:opacity .25s ease;
+  pointer-events:none;
+}
+*/
+
+/* Durante el flip (primer click) */
+/*
+.valentines-day.flipping .behind {
+  transform:rotateY(180deg);
+  opacity:0;
+}
+*/
+
+/* Al terminar el flip se muestra el frente normal */
+/*
+.valentines-day.flipped .envelope,
+.valentines-day.flipped .front-closed {
+  opacity:1;
+  pointer-events:auto;
+}
+*/
+
+/* Permitir luego interacción normal (hover etc.) tras flip */
+/*
+.valentines-day.flipped .letter,
+.valentines-day.flipped .text {
+  opacity:1;
+  pointer-events:auto;
+}
+*/
+
+/* Asegurar que al estar flipped y aún no open se mantiene tu lógica
+   (la carta no sube hasta tener .open gracias a tus reglas previas). */
+
+/* Opcional: cursor diferente antes del flip */
+.valentines-day:not(.flipped) {
+  cursor: alias;
+}
+
+/* Tras flip vuelve tu cursor pointer habitual (ya lo tenías) */
+
+/* Seguridad: al estar en flipping, desactivar otros hovers */
+.valentines-day.flipping .letter,
+.valentines-day.flipping .text {
+  transform:none !important;
+}
+
+/* Eliminado ocultado total de la trasera para conservar el 3D */
+/*
+.valentines-day.flipped .behind {
+  display:none;
+}
+*/
+
+/* Opcional: si quieres que las partes frontales sólo interactúen después del flip */
+.valentines-day:not(.flipped) .front-face * {
+  pointer-events:none;
+}
+
+/* El resto de reglas permanecen sin cambios */
+
