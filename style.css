@@ -15,11 +15,45 @@ body {
 .valentines-day {
   position: relative;
   cursor: pointer;
-  transform: translate(-90px, -157.5px) rotateY(var(--ry));
+  transform: translate(-90px, -157.5px) rotateY(var(--ry)) scale(var(--scale));
   --ry:0deg;
+  --scale:1;
   transform-style: preserve-3d;
-  transition: transform .9s cubic-bezier(.77,0,.18,1);
+  transition: transform .9s cubic-bezier(.77,0,.18,1), filter .6s;
   will-change: transform;
+}
+
+/* Hover (solo antes de voltearse) */
+.valentines-day:not(.flipped):hover {
+  --scale:1.05;
+}
+
+/* Click (feedback rápido) */
+.valentines-day:active {
+  --scale:1.10;
+  transition: transform .25s ease;
+}
+
+/* Abierto: zoom mayor */
+.valentines-day.open {
+  --scale:1.15;
+}
+
+/* Animación de brillo suave cuando está abierto */
+@keyframes pulseGlow {
+  0%,100% { filter: drop-shadow(0 0 24px rgba(255,90,130,.35)); }
+  50%     { filter: drop-shadow(0 0 40px rgba(255,90,130,.65)); }
+}
+
+.valentines-day.open .envelope {
+  animation: pulseGlow 2.4s ease-in-out infinite;
+}
+
+/* Respeto a usuarios con reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .valentines-day.open .envelope {
+    animation: none;
+  }
 }
 
 .envelope {
@@ -298,4 +332,435 @@ body {
 
 .valentines-day:not(.flipped) .front-face * {
   pointer-events:none;
+}
+
+.hint {
+  position:fixed;
+  bottom:28px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.65);
+  color:#fff;
+  font:600 16px/1.2 Arial, sans-serif;
+  padding:10px 20px;
+  border-radius:24px;
+  letter-spacing:.5px;
+  box-shadow:0 4px 10px -2px rgba(0,0,0,.35);
+  transition:opacity .45s;
+  user-select:none;
+  pointer-events:none;
+}
+.hint.hide {
+  opacity:0;
+}
+
+/* === Reposición de la frase debajo del sobre === */
+.envelope-flex {
+  /* aseguramos contexto y centrado */
+  position: relative;
+  align-items: center;
+  text-align: center;
+}
+
+.envelope-flex .hint.hint-phrase {
+  position: static !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin-top: 10px;
+  display: inline-block;
+  pointer-events: none; /* sigue sin interferir con clicks al sobre */
+}
+
+/* Ajuste opcional: si el zoom del sobre se acerca demasiado, aumentar margen al abrir */
+.envelope-flex .valentines-day.open ~ .hint.hint-phrase,
+.envelope-flex .valentines-day.flipped ~ .hint.hint-phrase {
+  margin-top: 14px;
+}
+
+.envelope-flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0; /* antes 8px: acercar la frase al sobre */
+}
+
+/* === Mejora frase "Haz clic sobre el sobre" === */
+@keyframes hintPulse {
+  0%,100% { transform: translateY(0) scale(1); text-shadow: 0 2px 4px rgba(0,0,0,.18); }
+  50%     { transform: translateY(-2px) scale(1.07); text-shadow: 0 4px 10px rgba(0,0,0,.28); }
+}
+@keyframes hintShimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Estado base: ahora ya más grande y llamativa */
+.hint.hint-phrase {
+  background:
+    linear-gradient(120deg, #ff5f7a 0%, #ff8aa5 40%, #ffa8b9 60%, #ff5f7a 100%);
+  background-size: 200% 100%;
+  color: #fff !important;
+  animation:
+    hintPulse 1.9s ease-in-out infinite,
+    hintShimmer 5s linear infinite;
+  box-shadow: 0 4px 12px -4px rgba(255,90,120,.55);
+  transition:
+    opacity .5s,
+    background .5s,
+    transform .4s,
+    box-shadow .4s,
+    color .4s;
+  font-size: 19px !important;
+  font-weight: 650 !important;
+  letter-spacing: .5px;
+  line-height: 1.15;
+  position: relative;
+  padding: 4px 10px;
+  border-radius: 14px;
+}
+
+/* Halo sutil */
+.hint.hint-phrase:before {
+  content:"";
+  position:absolute;
+  inset:-4px -6px;
+  border-radius:inherit;
+  background:radial-gradient(circle at 50% 50%, rgba(255,120,150,.55), transparent 70%);
+  filter: blur(8px);
+  opacity:.55;
+  pointer-events:none;
+  transition:opacity .5s;
+}
+
+/* Al pasar encima del texto (opcional) */
+.hint.hint-phrase:hover {
+  transform: translateY(-3px) scale(1.05);
+}
+
+/* Al presionar */
+.hint.hint-phrase:active {
+  transform: translateY(0) scale(.98);
+  transition: transform .15s;
+}
+
+/* Cuando el sobre se abre (uso ~ para mayor tolerancia en estructura) */
+.valentines-day.open ~ .hint.hint-phrase,
+.valentines-day.flipped ~ .hint.hint-phrase,
+.valentines-day.open + .hint.hint-phrase,
+.valentines-day.flipped + .hint.hint-phrase {
+  animation: none;
+  background: linear-gradient(120deg,#ffe1e9,#ffd0da);
+  background-size:100% 100%;
+  color:#b03d55 !important;
+  box-shadow: 0 2px 6px -2px rgba(0,0,0,.25);
+  transform: translateY(2px) scale(1.02);
+  letter-spacing:.25px;
+}
+
+.valentines-day.open ~ .hint.hint-phrase:before,
+.valentines-day.flipped ~ .hint.hint-phrase:before {
+  opacity:.15;
+}
+
+/* (Opcional) si quieres que desaparezca después de abrir, descomenta:
+.valentines-day.open ~ .hint.hint-phrase {
+  opacity:0;
+  pointer-events:none;
+}
+*/
+
+/* Accesibilidad: reducir motion */
+@media (prefers-reduced-motion: reduce) {
+  .hint.hint-phrase {
+    animation: none;
+    transform:none;
+  }
+}
+
+/* === Overrides: más abajo y animación en todo el contenido === */
+.envelope-flex .hint.hint-phrase {
+  margin-top: 130px !important;
+}
+
+.envelope-flex .valentines-day.open ~ .hint.hint-phrase,
+.envelope-flex .valentines-day.flipped ~ .hint.hint-phrase {
+  margin-top: 32px !important;
+}
+
+/* Aplica mismas animaciones a todos los hijos internos */
+.hint.hint-phrase,
+.hint.hint-phrase * {
+  animation: hintPulse 1.9s ease-in-out infinite, hintShimmer 5s linear infinite !important;
+  /* Asegura mismo suavizado de texto */
+  -webkit-font-smoothing: antialiased;
+}
+.valentines-day:hover .letter,
+.valentines-day:hover .text {
+  transform: none;
+}
+
+.valentines-day.open:hover .letter {
+  transform: translateY(-132px);
+}
+
+.valentines-day.open:hover .text {
+  transform: translateY(-132px);
+}
+
+.valentines-day.open .envelope:before {
+  opacity:1;
+  transition: opacity .4s .05s;
+}
+
+.behind {
+  position:absolute;
+  top:45px;
+  left:-90px;
+  width:360px;
+  height:225px;
+  background:linear-gradient(#ffeef2,#ffc7d2);
+  border:2px solid #f7a9b8;
+  border-radius:8px;
+  box-sizing:border-box;
+  padding:18px 20px 16px;
+  font-family: 'Sacramento', cursive;
+  font-size:34px;
+  line-height:1.1;
+  color:#b4455e;
+  letter-spacing:1px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:10px;
+  z-index:30;
+  backface-visibility:hidden;
+  transform:translateZ(0);
+  transition: opacity .4s;
+}
+
+.behind .to,
+.behind .from {
+  font-size:28px;
+  font-family: 'Sacramento', cursive;
+}
+
+.behind span {
+  font-weight:600;
+}
+
+.behind .stamp {
+  position:absolute;
+  top:14px;
+  right:16px;
+  width:60px;
+  height:60px;
+  background:
+    radial-gradient(circle at 30% 30%, #fff 0 35%, transparent 36%),
+    radial-gradient(circle at 65% 55%, #fff 0 28%, transparent 29%),
+    linear-gradient(145deg,#ff7d92,#ff5275);
+  border:4px solid #ffffffaa;
+  box-shadow:0 0 0 2px #e54a67, 0 4px 6px -2px rgba(0,0,0,.25);
+  border-radius:8px;
+  clip-path:polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+}
+
+.valentines-day:not(.flipped) {
+  cursor: alias;
+}
+
+.valentines-day.flipping .letter,
+.valentines-day.flipping .text {
+  transform:none !important;
+}
+
+.valentines-day:not(.flipped) .front-face * {
+  pointer-events:none;
+}
+
+.hint {
+  position:fixed;
+  bottom:28px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.65);
+  color:#fff;
+  font:600 16px/1.2 Arial, sans-serif;
+  padding:10px 20px;
+  border-radius:24px;
+  letter-spacing:.5px;
+  box-shadow:0 4px 10px -2px rgba(0,0,0,.35);
+  transition:opacity .45s;
+  user-select:none;
+  pointer-events:none;
+}
+.hint.hide {
+  opacity:0;
+}
+
+/* === Reposición de la frase debajo del sobre === */
+.envelope-flex {
+  /* aseguramos contexto y centrado */
+  position: relative;
+  align-items: center;
+  text-align: center;
+}
+
+.envelope-flex .hint.hint-phrase {
+  position: static !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin-top: 10px;
+  display: inline-block;
+  pointer-events: none; /* sigue sin interferir con clicks al sobre */
+}
+
+/* Ajuste opcional: si el zoom del sobre se acerca demasiado, aumentar margen al abrir */
+.envelope-flex .valentines-day.open ~ .hint.hint-phrase,
+.envelope-flex .valentines-day.flipped ~ .hint.hint-phrase {
+  margin-top: 14px;
+}
+
+.envelope-flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0; /* antes 8px: acercar la frase al sobre */
+}
+
+/* === Mejora frase "Haz clic sobre el sobre" === */
+@keyframes hintPulse {
+  0%,100% { transform: translateY(0) scale(1); text-shadow: 0 2px 4px rgba(0,0,0,.18); }
+  50%     { transform: translateY(-2px) scale(1.07); text-shadow: 0 4px 10px rgba(0,0,0,.28); }
+}
+@keyframes hintShimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Estado base: ahora ya más grande y llamativa */
+.hint.hint-phrase {
+  background:
+    linear-gradient(120deg, #ff5f7a 0%, #ff8aa5 40%, #ffa8b9 60%, #ff5f7a 100%);
+  background-size: 200% 100%;
+  color: #fff !important;
+  animation:
+    hintPulse 1.9s ease-in-out infinite,
+    hintShimmer 5s linear infinite;
+  box-shadow: 0 4px 12px -4px rgba(255,90,120,.55);
+  transition:
+    opacity .5s,
+    background .5s,
+    transform .4s,
+    box-shadow .4s,
+    color .4s;
+  font-size: 19px !important;
+  font-weight: 650 !important;
+  letter-spacing: .5px;
+  line-height: 1.15;
+  position: relative;
+  padding: 4px 10px;
+  border-radius: 14px;
+}
+
+/* Halo sutil */
+.hint.hint-phrase:before {
+  content:"";
+  position:absolute;
+  inset:-4px -6px;
+  border-radius:inherit;
+  background:radial-gradient(circle at 50% 50%, rgba(255,120,150,.55), transparent 70%);
+  filter: blur(8px);
+  opacity:.55;
+  pointer-events:none;
+  transition:opacity .5s;
+}
+
+/* Al pasar encima del texto (opcional) */
+.hint.hint-phrase:hover {
+  transform: translateY(-3px) scale(1.05);
+}
+
+/* Al presionar */
+.hint.hint-phrase:active {
+  transform: translateY(0) scale(.98);
+  transition: transform .15s;
+}
+
+/* Cuando el sobre se abre (uso ~ para mayor tolerancia en estructura) */
+.valentines-day.open ~ .hint.hint-phrase,
+.valentines-day.flipped ~ .hint.hint-phrase,
+.valentines-day.open + .hint.hint-phrase,
+.valentines-day.flipped + .hint.hint-phrase {
+  animation: none;
+  background: linear-gradient(120deg,#ffe1e9,#ffd0da);
+  background-size:100% 100%;
+  color:#b03d55 !important;
+  box-shadow: 0 2px 6px -2px rgba(0,0,0,.25);
+  transform: translateY(2px) scale(1.02);
+  letter-spacing:.25px;
+}
+
+.valentines-day.open ~ .hint.hint-phrase:before,
+.valentines-day.flipped ~ .hint.hint-phrase:before {
+  opacity:.15;
+}
+
+/* (Opcional) si quieres que desaparezca después de abrir, descomenta:
+.valentines-day.open ~ .hint.hint-phrase {
+  opacity:0;
+  pointer-events:none;
+}
+*/
+
+/* Accesibilidad: reducir motion */
+@media (prefers-reduced-motion: reduce) {
+  .hint.hint-phrase {
+    animation: none;
+    transform:none;
+  }
+}
+
+/* === Overrides: más abajo y animación en todo el contenido === */
+.envelope-flex .hint.hint-phrase {
+  margin-top: 160px !important; /* más abajo */
+}
+
+/* Anula el margen reducido cuando se abre */
+.envelope-flex .valentines-day.open ~ .hint.hint-phrase,
+.envelope-flex .valentines-day.flipped ~ .hint.hint-phrase {
+  margin-top: 160px !important;
+}
+
+/* Fuerza mismo estilo animado aun abierto/flipped */
+.valentines-day.open ~ .hint.hint-phrase,
+.valentines-day.flipped ~ .hint.hint-phrase,
+.valentines-day.open + .hint.hint-phrase,
+.valentines-day.flipped + .hint.hint-phrase {
+  background: linear-gradient(120deg, #ff5f7a 0%, #ff8aa5 40%, #ffa8b9 60%, #ff5f7a 100%) !important;
+  background-size: 200% 100% !important;
+  color:#fff !important;
+  animation: hintPulse 1.9s ease-in-out infinite, hintShimmer 5s linear infinite !important;
+  box-shadow: 0 4px 12px -4px rgba(255,90,120,.55) !important;
+  transform:none !important;
+  letter-spacing:.5px !important;
+}
+
+/* Halo reactivado */
+.valentines-day.open ~ .hint.hint-phrase:before,
+.valentines-day.flipped ~ .hint.hint-phrase:before,
+.valentines-day.open + .hint.hint-phrase:before,
+.valentines-day.flipped + .hint.hint-phrase:before {
+  opacity:.55 !important;
+}
+
+/* Aplica también a los hijos (texto interno) */
+.valentines-day.open ~ .hint.hint-phrase *,
+.valentines-day.flipped ~ .hint.hint-phrase *,
+.valentines-day.open + .hint.hint-phrase *,
+.valentines-day.flipped + .hint.hint-phrase * {
+  animation: hintPulse 1.9s ease-in-out infinite, hintShimmer 5s linear infinite !important;
+  color: inherit !important;
 }
