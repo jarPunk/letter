@@ -1,27 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Carta de San Valentín</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Una Carta Especial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Sacramento&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div class="valentines-day">
-    <div class="behind">
-      <div class="stamp"></div>
-      <div class="to">To: <span>Fernanda Fernandez</span></div>
-      <div class="from">From: <span>Oswald Perez</span></div>
+  <!-- Ambient floating hearts background -->
+  <div class="hearts-bg" id="hearts-bg"></div>
+
+  <!-- Main container -->
+  <div class="container">
+    <div class="envelope-wrapper">
+      <div class="envelope-container" id="envelope">
+        
+        <!-- FRONT OF THE ENVELOPE (Flipped state 0) -->
+        <div class="envelope-front">
+          <div class="postal-details">
+            <div class="stamp">
+              <div class="stamp-inner">❤️</div>
+            </div>
+            <div class="postmark"></div>
+            <div class="address-plate">
+              <div class="recipient">Para: <span id="para-envelope">Fernanda Fernández</span></div>
+              <div class="sender">De: <span id="de-envelope">Oswald Pérez</span></div>
+            </div>
+          </div>
+          <div class="ribbon-vertical"></div>
+          <div class="ribbon-horizontal"></div>
+        </div>
+
+        <!-- BACK OF THE ENVELOPE (Flipped state 1 - flaps and letter) -->
+        <div class="envelope-back">
+          <!-- The letter hidden inside the pocket -->
+          <div class="letter" id="letter">
+            <div class="letter-paper">
+              <div class="letter-header">
+                <span class="letter-date">12 de Junio, 2026</span>
+              </div>
+              <div class="letter-content">
+                <p class="salutation">Querida <span id="para-letter">Fernanda</span>,</p>
+                <p class="message" id="mensaje">
+                  ¿Quieres salir por un café<br>
+                  para compartirlo juntos? ☕✨
+                </p>
+                <p class="closing">Con cariño,</p>
+                <p class="signature" id="de-letter">Oswald</p>
+              </div>
+              <div class="letter-rsvp" id="rsvp-section">
+                <button class="rsvp-btn btn-yes" id="btn-yes">¡Sí! ❤️</button>
+                <div class="btn-no-wrapper">
+                  <button class="rsvp-btn btn-no" id="btn-no">No 😢</button>
+                </div>
+              </div>
+              <div class="letter-back-btn" id="letter-back-btn">
+                <span>Guardar carta ↑</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- The left, right, and bottom flaps (drawn inside the pocket wrapper) -->
+          <div class="pocket">
+            <div class="left-fold"></div>
+            <div class="right-fold"></div>
+            <div class="bottom-fold"></div>
+          </div>
+          
+          <!-- The top flap that rotates open (180deg on X axis) -->
+          <div class="top-flap">
+            <div class="top-flap-outer"></div>
+            <div class="top-flap-inner"></div>
+          </div>
+          
+          <!-- The wax seal that locks the top flap -->
+          <div class="wax-seal" id="wax-seal">
+            <div class="seal-inner">
+              <span class="seal-heart">♥</span>
+            </div>
+          </div>
+          
+        </div>
+        
+      </div>
     </div>
-    <div class="front-face">
-      <div class="envelope"></div>
-      <div class="letter"></div>
-      <div class="text">Quieres salir  <br> por un cafe <br>para compartirlo juntos</div>
-      <div class="front-closed"></div>
-      <div class="front"></div>
+
+    <!-- Interactive dynamic hint -->
+    <div class="hint" id="hint">Haz clic sobre el sobre para ver quién te escribe...</div>
+  </div>
+
+  <!-- Confetti container -->
+  <div class="confetti-container" id="confetti-container"></div>
+
+  <!-- Modal/Alert for final success -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-card">
+      <div class="success-icon">💖</div>
+      <h2>¡Es una cita!</h2>
+      <p id="success-message">Oswald ya está preparando todo para el café. ¡Te espera con ansias!</p>
+      <button class="close-success" id="close-success">Cerrar</button>
     </div>
   </div>
-  <div class="hint">Haz clic para girar</div>
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+
   <script src="./script.js"></script>
 </body>
 </html>
