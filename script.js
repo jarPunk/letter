@@ -232,9 +232,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let de = params.get('de');
     let msg = params.get('msg');
     let resp = params.get('resp');
-    
-    // Check for base64 compressed format in parameter "c"
     const compressed = params.get('c');
+    
+    // Si no hay parámetros de carta en la URL, redireccionar automáticamente al generador
+    if (!para && !de && !msg && !resp && !compressed) {
+      const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
+      window.location.href = `${baseURI}generador.html`;
+      return;
+    }
     if (compressed) {
       try {
         // Decode base64 URL-safe string
