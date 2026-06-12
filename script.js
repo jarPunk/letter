@@ -92,6 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
   btnNo.addEventListener('touchstart', triggerNoEvasion, { passive: false });
   btnNo.addEventListener('click', triggerNoEvasion);
 
+  // Close letter when clicking outside (on the blank background space)
+  document.addEventListener('click', (e) => {
+    if (state === 'reading' || state === 'opened') {
+      if (!e.target.closest('#letter') && !e.target.closest('#envelope') && !e.target.closest('#success-screen')) {
+        closeLetter();
+      }
+    }
+  });
+
   // --- Functions ---
   
   function openEnvelope() {
