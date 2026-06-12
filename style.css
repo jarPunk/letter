@@ -759,3 +759,29 @@ body {
     padding: 6px 16px;
   }
 }
+
+/* Floating Shortcut to Generator Page */
+.create-own-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  text-decoration: none;
+  font-family: var(--font-body);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.create-own-btn:hover {
+  color: #fff;
+  border-color: var(--env-base);
+  background: rgba(229, 153, 164, 0.15);
+  box-shadow: 0 0 10px rgba(229, 153, 164, 0.2);
+}
+

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnYes = document.getElementById('btn-yes');
   const btnNo = document.getElementById('btn-no');
   const btnBack = document.getElementById('letter-back-btn');
+  const createOwnBtn = document.getElementById('create-own-btn');
   const successScreen = document.getElementById('success-screen');
   const closeSuccess = document.getElementById('close-success');
   const paper = document.querySelector('.letter-paper');
@@ -73,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.stopPropagation();
     successScreen.classList.add('active');
     triggerConfetti();
+    if (createOwnBtn) createOwnBtn.style.opacity = '0';
   });
   
   // Close success modal
@@ -109,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     letter.classList.add('zoomed');
     state = 'reading';
     hint.style.opacity = '0';
+    if (createOwnBtn) createOwnBtn.style.opacity = '0';
   }
   
   function closeLetter() {
@@ -128,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state = 'back';
     hint.textContent = 'Pulsa sobre el sello de cera para romperlo y abrir...';
     hint.style.opacity = '1';
+    if (createOwnBtn) createOwnBtn.style.opacity = '1';
   }
   
   function evadeButton(btn, container) {
