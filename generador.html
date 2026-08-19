@@ -255,22 +255,27 @@
     
     <div class="form-group">
       <label for="para-input">Para (Destinatario):</label>
-      <input type="text" id="para-input" placeholder="Ej: Fernanda Fernández" value="Fernanda Fernández">
+      <input type="text" id="para-input" placeholder="Ej: María García">
     </div>
 
     <div class="form-group">
       <label for="de-input">De (Remitente):</label>
-      <input type="text" id="de-input" placeholder="Ej: Oswald Pérez" value="Oswald Pérez">
+      <input type="text" id="de-input" placeholder="Ej: Carlos Romero">
+    </div>
+
+    <div class="form-group">
+      <label for="email-input">Tu Correo Electrónico (Remitente):</label>
+      <input type="email" id="email-input" placeholder="Ej: carlos@ejemplo.com">
     </div>
 
     <div class="form-group">
       <label for="msg-input">Mensaje de la Carta:</label>
-      <textarea id="msg-input" placeholder="Escribe tu mensaje especial aquí...">¿Quieres salir por un café para compartirlo juntos? ☕✨</textarea>
+      <textarea id="msg-input" placeholder="Escribe tu mensaje especial aquí...&#10;Ej: ¿Quieres salir conmigo a compartir un momento especial? ✨💖"></textarea>
     </div>
 
     <div class="form-group">
       <label for="resp-input">Mensaje de Aceptación (Al decir Sí):</label>
-      <textarea id="resp-input" placeholder="Escribe el mensaje que verá cuando acepte...">Oswald ya está preparando todo para el café. ¡Te espera con ansias!</textarea>
+      <textarea id="resp-input" placeholder="Mensaje que verá al aceptar (Opcional)&#10;Ej: ¡Sabía que dirías que sí! Ya estoy preparando todo. 🥰✨"></textarea>
     </div>
 
     <button class="btn" id="btn-generate">Generar Enlace Corto</button>
@@ -297,6 +302,10 @@
 
   <div class="toast" id="toast">¡Enlace copiado al portapapeles! 💖</div>
 
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const btnGenerate = document.getElementById('btn-generate');
@@ -306,6 +315,7 @@
       
       const paraInput = document.getElementById('para-input');
       const deInput = document.getElementById('de-input');
+      const emailInput = document.getElementById('email-input');
       const msgInput = document.getElementById('msg-input');
       const respInput = document.getElementById('resp-input');
       
@@ -320,64 +330,77 @@
       btnGenerate.addEventListener('click', async () => {
         const para = paraInput.value.trim();
         const de = deInput.value.trim();
+        const email = emailInput.value.trim() || 'anonimo@carta.com';
         const msg = msgInput.value.trim();
-        const resp = respInput.value.trim();
+        const resp = respInput.value.trim() || '¡Sabía que dirías que sí! Todo está listo para nuestro momento especial. 🥰✨';
 
-        if (!para || !de || !msg || !resp) {
-          alert('Por favor, completa todos los campos.');
+        if (!para || !de || !msg) {
+          alert('Por favor, completa los campos de Destinatario, Remitente y Mensaje.');
           return;
         }
 
-        // 1. Create compressed data block using URL-safe base64 encoding
-        // Combine fields separated by pipe '|'
+        btnGenerate.textContent = 'Guardando carta...';
+        btnGenerate.disabled = true;
+
+        const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
+
+        // 1. Crear respaldo local Base64 URL-safe
         const combined = `${para}|${de}|${msg}|${resp}`;
-        
-        // Encode using UTF-8 support
         const utf8Bytes = encodeURIComponent(combined);
         const base64 = window.btoa(unescape(utf8Bytes))
           .replace(/\+/g, '-')
           .replace(/\//g, '_')
-          .replace(/=+$/, ''); // Make URL-safe
+          .replace(/=+$/, '');
+        const backupUrl = `${baseURI}index.html?c=${base64}`;
+        base64LinkInput.value = backupUrl;
 
-        // 2. Build full local URL (pointing to index.html in the same directory)
-        const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
-        const longUrl = `${baseURI}index.html?c=${base64}`;
+        // 2. Si Supabase está configurado, guardar en la Base de Datos
+        if (window.SupabaseLetterDB && window.SupabaseLetterDB.isConfigured()) {
+          try {
+            const letter = await window.SupabaseLetterDB.createLetter({
+              recipient_name: para,
+              sender_name: de,
+              sender_email: email,
+              message: msg,
+              acceptance_message: resp
+            });
 
-        base64LinkInput.value = longUrl;
-        currentLink = longUrl;
-
-        // 3. Try shortening via is.gd API (CORS-friendly)
-        btnGenerate.textContent = 'Generando...';
-        btnGenerate.disabled = true;
-
-        try {
-          // fetch via standard cors mode.
-          const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`, {
-            mode: 'cors'
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.shorturl) {
-              shortLinkInput.value = data.shorturl;
-              currentLink = data.shorturl;
-            } else {
-              throw new Error('No shorturl returned');
-            }
-          } else {
-            throw new Error('Network response not ok');
+            const dbUrl = `${baseURI}index.html?l=${letter.short_code}`;
+            shortLinkInput.value = dbUrl;
+            currentLink = dbUrl;
+          } catch (err) {
+            console.error('Error al guardar en Supabase:', err);
+            alert('Aviso: Ocurrió un detalle al conectar con Supabase. Usando enlace de respaldo.');
+            shortLinkInput.value = backupUrl;
+            currentLink = backupUrl;
           }
-        } catch (err) {
-          console.warn('is.gd shortening failed, falling back to local base64 link:', err);
-          // Fallback to local base64 link
-          shortLinkInput.value = longUrl;
-          currentLink = longUrl;
-        } finally {
-          btnGenerate.textContent = 'Generar Enlace Corto';
-          btnGenerate.disabled = false;
-          resultsSection.classList.add('active');
-          btnGenerate.style.display = 'none';
+        } else {
+          // Si Supabase aún no tiene credenciales, intentar acortador o enlace Base64
+          try {
+            const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(backupUrl)}`, {
+              mode: 'cors'
+            });
+            if (response.ok) {
+              const data = await response.json();
+              if (data.shorturl) {
+                shortLinkInput.value = data.shorturl;
+                currentLink = data.shorturl;
+              } else {
+                throw new Error('No shorturl');
+              }
+            } else {
+              throw new Error('Network error');
+            }
+          } catch (err) {
+            shortLinkInput.value = backupUrl;
+            currentLink = backupUrl;
+          }
         }
+
+        btnGenerate.textContent = 'Generar Enlace Corto';
+        btnGenerate.disabled = false;
+        resultsSection.classList.add('active');
+        btnGenerate.style.display = 'none';
       });
 
       // Copy mechanisms
@@ -393,7 +416,6 @@
           await navigator.clipboard.writeText(inputEl.value);
           showToast();
         } catch (err) {
-          // Fallback for older browsers
           inputEl.select();
           document.execCommand('copy');
           showToast();
@@ -410,10 +432,11 @@
       btnRestart.addEventListener('click', () => {
         resultsSection.classList.remove('active');
         btnGenerate.style.display = 'block';
-        paraInput.value = 'Fernanda Fernández';
-        deInput.value = 'Oswald Pérez';
-        msgInput.value = '¿Quieres salir por un café para compartirlo juntos? ☕✨';
-        respInput.value = 'Oswald ya está preparando todo para el café. ¡Te espera con ansias!';
+        paraInput.value = '';
+        deInput.value = '';
+        emailInput.value = '';
+        msgInput.value = '';
+        respInput.value = '';
       });
     });
   </script>

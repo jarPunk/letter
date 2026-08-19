@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Elements
   const envelope = document.getElementById('envelope');
   const waxSeal = document.getElementById('wax-seal');
@@ -14,14 +14,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const noWrapper = document.querySelector('.btn-no-wrapper');
   
   let state = 'front'; // front, back, opened, reading
+  let yesTriggered = false;
+  let currentLetterId = null; // Supabase UUID
   
-  // 1. Initialize ambient background floating hearts
+  // 1. Initialize dynamic current date
+  updateLetterDate();
+  
+  // 2. Initialize ambient background floating hearts
   initFloatingHearts();
   
-  // Parse URL Parameters (dynamic letter contents)
-  parseURLParams();
+  // 3. Parse URL Parameters (dynamic letter contents & Supabase sync)
+  await parseURLParams();
   
-  // 2. Envelope interaction
+  // 4. Envelope interaction
   envelope.addEventListener('click', (e) => {
     // Prevent clicking envelope when interacting with letter contents or RSVP buttons
     if (
@@ -56,40 +61,80 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   // Wax seal opens envelope
-  waxSeal.addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent card flip
+  const handleWaxSeal = (e) => {
+    if (e) {
+      e.stopPropagation();
+    }
     if (state === 'back') {
       openEnvelope();
     }
+  };
+  waxSeal.addEventListener('click', handleWaxSeal);
+  waxSeal.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    handleWaxSeal(e);
   });
   
   // Guardar/Put back letter interaction
-  btnBack.addEventListener('click', (e) => {
-    e.stopPropagation();
+  const handleBack = (e) => {
+    if (e) {
+      e.stopPropagation();
+    }
     closeLetter();
+  };
+  btnBack.addEventListener('click', handleBack);
+  btnBack.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    handleBack(e);
   });
   
   // RSVP YES celebration
-  btnYes.addEventListener('click', (e) => {
-    e.stopPropagation();
+  const handleYes = (e) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    if (yesTriggered) return;
+    yesTriggered = true;
+    setTimeout(() => { yesTriggered = false; }, 800);
+    
+    // Registrar respuesta en Supabase si aplica
+    if (currentLetterId && window.SupabaseLetterDB && window.SupabaseLetterDB.isConfigured()) {
+      window.SupabaseLetterDB.saveResponse({ letterId: currentLetterId, answer: 'yes' });
+    }
+
     successScreen.classList.add('active');
     triggerConfetti();
     if (createOwnBtn) createOwnBtn.style.opacity = '0';
+  };
+  btnYes.addEventListener('click', handleYes);
+  btnYes.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    handleYes(e);
   });
   
   // Close success modal
-  closeSuccess.addEventListener('click', () => {
+  const handleCloseSuccess = (e) => {
+    if (e) e.stopPropagation();
     successScreen.classList.remove('active');
+  };
+  closeSuccess.addEventListener('click', handleCloseSuccess);
+  closeSuccess.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    handleCloseSuccess(e);
   });
   
   // Evasive "No" Button events
   const triggerNoEvasion = (e) => {
-    e.preventDefault(); // Stop standard tap/click actions on mobile
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     evadeButton(btnNo, paper);
   };
   
   btnNo.addEventListener('mouseenter', triggerNoEvasion);
   btnNo.addEventListener('touchstart', triggerNoEvasion, { passive: false });
+  btnNo.addEventListener('pointerdown', triggerNoEvasion);
   btnNo.addEventListener('click', triggerNoEvasion);
 
   // Close letter when clicking outside (on the blank background space)
@@ -102,6 +147,28 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Functions ---
+  
+  function updateLetterDate(customDate) {
+    const dateEl = document.querySelector('.letter-date');
+    if (!dateEl) return;
+    
+    if (customDate) {
+      dateEl.textContent = customDate;
+      return;
+    }
+    
+    const months = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    
+    const now = new Date();
+    const day = now.getDate();
+    const month = months[now.getMonth()];
+    const year = now.getFullYear();
+    
+    dateEl.textContent = `${day} de ${month}, ${year}`;
+  }
   
   function openEnvelope() {
     envelope.classList.add('open');
@@ -136,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnNo.style.top = '';
     btnNo.style.transition = '';
     btnNo.style.margin = '';
+    btnNo.style.zIndex = '';
     
     state = 'back';
     hint.textContent = 'Pulsa sobre el sello de cera para romperlo y abrir...';
@@ -151,13 +219,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    const btnWidth = btn.offsetWidth;
-    const btnHeight = btn.offsetHeight;
+    const btnWidth = btn.offsetWidth || 75;
+    const btnHeight = btn.offsetHeight || 36;
     
     // Keep within bounds of the letter paper with safe padding
-    const padding = 15;
-    const maxX = containerWidth - btnWidth - padding * 2;
-    const maxY = containerHeight - btnHeight - padding * 2;
+    const padding = 12;
+    const maxX = Math.max(0, containerWidth - btnWidth - padding * 2);
+    const maxY = Math.max(0, containerHeight - btnHeight - padding * 2);
     
     const randomX = Math.random() * maxX + padding;
     const randomY = Math.random() * maxY + padding;
@@ -166,7 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.style.left = `${randomX}px`;
     btn.style.top = `${randomY}px`;
     btn.style.margin = '0';
-    btn.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+    btn.style.zIndex = '20';
+    btn.style.transition = 'all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1)';
   }
   
   function initFloatingHearts() {
@@ -235,16 +304,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  function parseURLParams() {
+  async function parseURLParams() {
     const params = new URLSearchParams(window.location.search);
     let para = params.get('para');
     let de = params.get('de');
     let msg = params.get('msg');
     let resp = params.get('resp');
+    let fecha = params.get('fecha');
     const compressed = params.get('c');
+    const shortCode = params.get('l') || params.get('code');
+    
+    // Si viene un código de Supabase (?l=code o ?code=code)
+    if (shortCode && window.SupabaseLetterDB && window.SupabaseLetterDB.isConfigured()) {
+      try {
+        const letterData = await window.SupabaseLetterDB.getLetterByCode(shortCode);
+        if (letterData) {
+          currentLetterId = letterData.id;
+          para = letterData.recipient_name;
+          de = letterData.sender_name;
+          msg = letterData.message;
+          resp = letterData.acceptance_message;
+          
+          if (letterData.created_at) {
+            const dateObj = new Date(letterData.created_at);
+            const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            fecha = `${dateObj.getDate()} de ${months[dateObj.getMonth()]}, ${dateObj.getFullYear()}`;
+          }
+
+          // Marcar como vista en Supabase
+          window.SupabaseLetterDB.markLetterViewed(letterData.id);
+        }
+      } catch (err) {
+        console.warn('No se pudo cargar la carta desde Supabase, intentando otros parámetros:', err);
+      }
+    }
     
     // Si no hay parámetros de carta en la URL, redireccionar automáticamente al generador
-    if (!para && !de && !msg && !resp && !compressed) {
+    if (!para && !de && !msg && !resp && !compressed && !shortCode) {
       const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
       window.location.href = `${baseURI}generador.html`;
       return;
@@ -252,7 +348,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (compressed) {
       try {
         // Decode base64 URL-safe string
-        const base64 = compressed.replace(/-/g, '+').replace(/_/g, '/');
+        let base64 = compressed.replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4) {
+          base64 += '=';
+        }
         const decoded = decodeURIComponent(escape(window.atob(base64)));
         const parts = decoded.split('|');
         if (parts.length >= 3) {
@@ -260,10 +359,15 @@ document.addEventListener('DOMContentLoaded', () => {
           de = parts[1];
           msg = parts[2];
           resp = parts[3] || ''; // 4th part holds acceptance response message
+          if (parts[4]) fecha = parts[4];
         }
       } catch (err) {
         console.error('Error decoding compressed parameters:', err);
       }
+    }
+    
+    if (fecha) {
+      updateLetterDate(fecha);
     }
     
     // Update DOM elements

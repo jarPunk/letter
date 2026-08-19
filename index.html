@@ -26,8 +26,8 @@
             </div>
             <div class="postmark"></div>
             <div class="address-plate">
-              <div class="recipient">Para: <span id="para-envelope">Fernanda Fernández</span></div>
-              <div class="sender">De: <span id="de-envelope">Oswald Pérez</span></div>
+              <div class="recipient">Para: <span id="para-envelope">Mi Persona Especial</span></div>
+              <div class="sender">De: <span id="de-envelope">Alguien que te quiere</span></div>
             </div>
           </div>
           <div class="ribbon-vertical"></div>
@@ -43,13 +43,13 @@
                 <span class="letter-date">12 de Junio, 2026</span>
               </div>
               <div class="letter-content">
-                <p class="salutation">Querida <span id="para-letter">Fernanda</span>,</p>
+                <p class="salutation">Hola <span id="para-letter">Especial</span>,</p>
                 <p class="message" id="mensaje">
-                  ¿Quieres salir por un café<br>
-                  para compartirlo juntos? ☕✨
+                  Tengo algo muy lindo que decirte...<br>
+                  ¿Quieres compartir este momento conmigo? ✨💖
                 </p>
-                <p class="closing">Con cariño,</p>
-                <p class="signature" id="de-letter">Oswald</p>
+                <p class="closing">Con todo mi cariño,</p>
+                <p class="signature" id="de-letter">Tu Admirador</p>
               </div>
               <div class="letter-rsvp" id="rsvp-section">
                 <button class="rsvp-btn btn-yes" id="btn-yes">¡Sí! ❤️</button>
@@ -100,7 +100,7 @@
     <div class="success-card">
       <div class="success-icon">💖</div>
       <h2>¡Es una cita!</h2>
-      <p id="success-message">Oswald ya está preparando todo para el café. ¡Te espera con ansias!</p>
+      <p id="success-message">¡Todo está listo para nuestro momento especial! No puedo esperar a verte. 🥰✨</p>
       <button class="close-success" id="close-success">Cerrar</button>
     </div>
   </div>
@@ -108,6 +108,9 @@
   <!-- Floating Shortcut to Generator -->
   <a href="./generador.html" class="create-own-btn" id="create-own-btn">Crear tu propia carta 💖</a>
 
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
   <script src="./script.js"></script>
 </body>
 </html>
