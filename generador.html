@@ -264,8 +264,8 @@
     </div>
 
     <div class="form-group">
-      <label for="email-input">Tu Correo Electrónico (Remitente):</label>
-      <input type="email" id="email-input" placeholder="Ej: carlos@ejemplo.com">
+      <label for="phone-input">Tu Número de Teléfono / WhatsApp (Remitente):</label>
+      <input type="tel" id="phone-input" placeholder="Ej: +56912345678">
     </div>
 
     <div class="form-group">
@@ -315,7 +315,7 @@
       
       const paraInput = document.getElementById('para-input');
       const deInput = document.getElementById('de-input');
-      const emailInput = document.getElementById('email-input');
+      const phoneInput = document.getElementById('phone-input');
       const msgInput = document.getElementById('msg-input');
       const respInput = document.getElementById('resp-input');
       
@@ -330,7 +330,7 @@
       btnGenerate.addEventListener('click', async () => {
         const para = paraInput.value.trim();
         const de = deInput.value.trim();
-        const email = emailInput.value.trim() || 'anonimo@carta.com';
+        const phone = phoneInput.value.trim();
         const msg = msgInput.value.trim();
         const resp = respInput.value.trim() || '¡Sabía que dirías que sí! Todo está listo para nuestro momento especial. 🥰✨';
 
@@ -345,7 +345,7 @@
         const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
 
         // 1. Crear respaldo local Base64 URL-safe
-        const combined = `${para}|${de}|${msg}|${resp}`;
+        const combined = `${para}|${de}|${msg}|${resp}|${phone}`;
         const utf8Bytes = encodeURIComponent(combined);
         const base64 = window.btoa(unescape(utf8Bytes))
           .replace(/\+/g, '-')
@@ -360,7 +360,7 @@
             const letter = await window.SupabaseLetterDB.createLetter({
               recipient_name: para,
               sender_name: de,
-              sender_email: email,
+              sender_phone: phone,
               message: msg,
               acceptance_message: resp
             });
@@ -434,7 +434,7 @@
         btnGenerate.style.display = 'block';
         paraInput.value = '';
         deInput.value = '';
-        emailInput.value = '';
+        phoneInput.value = '';
         msgInput.value = '';
         respInput.value = '';
       });

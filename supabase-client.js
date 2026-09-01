@@ -54,7 +54,7 @@ const SupabaseLetterDB = {
   /**
    * Guarda una nueva carta en la base de datos
    */
-  async createLetter({ recipient_name, sender_name, sender_email, message, acceptance_message }) {
+  async createLetter({ recipient_name, sender_name, sender_phone, message, acceptance_message }) {
     const client = getSupabaseClient();
     if (!client) {
       throw new Error('Supabase no está configurado');
@@ -69,7 +69,7 @@ const SupabaseLetterDB = {
           short_code,
           recipient_name,
           sender_name,
-          sender_email,
+          sender_phone,
           message,
           acceptance_message,
           status: 'pending'

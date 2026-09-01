@@ -10,12 +10,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const createOwnBtn = document.getElementById('create-own-btn');
   const successScreen = document.getElementById('success-screen');
   const closeSuccess = document.getElementById('close-success');
+  const btnWhatsApp = document.getElementById('btn-whatsapp');
   const paper = document.querySelector('.letter-paper');
   const noWrapper = document.querySelector('.btn-no-wrapper');
   
   let state = 'front'; // front, back, opened, reading
   let yesTriggered = false;
   let currentLetterId = null; // Supabase UUID
+  let senderPhone = null;
   
   // 1. Initialize dynamic current date
   updateLetterDate();
@@ -311,9 +313,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let msg = params.get('msg');
     let resp = params.get('resp');
     let fecha = params.get('fecha');
+    let phoneParam = params.get('phone') || params.get('tel');
     const compressed = params.get('c');
     const shortCode = params.get('l') || params.get('code');
     
+    if (phoneParam) senderPhone = phoneParam;
+
     // Si viene un código de Supabase (?l=code o ?code=code)
     if (shortCode && window.SupabaseLetterDB && window.SupabaseLetterDB.isConfigured()) {
       try {
@@ -324,6 +329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           de = letterData.sender_name;
           msg = letterData.message;
           resp = letterData.acceptance_message;
+          if (letterData.sender_phone) senderPhone = letterData.sender_phone;
           
           if (letterData.created_at) {
             const dateObj = new Date(letterData.created_at);
@@ -359,7 +365,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           de = parts[1];
           msg = parts[2];
           resp = parts[3] || ''; // 4th part holds acceptance response message
-          if (parts[4]) fecha = parts[4];
+          if (parts[4]) senderPhone = parts[4];
+          if (parts[5]) fecha = parts[5];
         }
       } catch (err) {
         console.error('Error decoding compressed parameters:', err);
@@ -398,5 +405,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         successMsgEl.innerHTML = resp.replace(/\n/g, '<br>');
       }
     }
+
+    setupWhatsAppButton();
+  }
+
+  function setupWhatsAppButton() {
+    if (!btnWhatsApp) return;
+    if (senderPhone && senderPhone.trim() !== '') {
+      const cleanPhone = senderPhone.replace(/\D/g, '');
+      if (cleanPhone) {
+        const text = encodeURIComponent('¡Hola! Leí tu carta y dije que SÍ 💕✨');
+        btnWhatsApp.href = `https://wa.me/${cleanPhone}?text=${text}`;
+        btnWhatsApp.style.display = 'inline-flex';
+        return;
+      }
+    }
+    btnWhatsApp.style.display = 'none';
   }
 });
