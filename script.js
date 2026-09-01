@@ -114,6 +114,77 @@ document.addEventListener('DOMContentLoaded', async () => {
     handleYes(e);
   });
   
+  const btnInstagram = document.getElementById('btn-instagram');
+  const btnShareNative = document.getElementById('btn-share-native');
+  const btnCopyLink = document.getElementById('btn-copy-link');
+  const toast = document.getElementById('toast');
+
+  const showToast = (message = '¡Enlace copiado al portapapeles! 💖') => {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('active');
+    setTimeout(() => {
+      toast.classList.remove('active');
+    }, 2800);
+  };
+
+  const copyCurrentPageUrl = async (customToastMsg) => {
+    const currentUrl = window.location.href;
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      showToast(customToastMsg || '¡Enlace copiado al portapapeles! 💖');
+    } catch (err) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = currentUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast(customToastMsg || '¡Enlace copiado al portapapeles! 💖');
+    }
+  };
+
+  if (btnCopyLink) {
+    btnCopyLink.addEventListener('click', () => copyCurrentPageUrl());
+  }
+
+  if (btnInstagram) {
+    btnInstagram.addEventListener('click', async () => {
+      await copyCurrentPageUrl('¡Enlace copiado! Redirigiendo a Instagram... 📸');
+      setTimeout(() => {
+        window.open('https://www.instagram.com/direct/inbox/', '_blank');
+      }, 1200);
+    });
+  }
+
+  if (btnShareNative) {
+    btnShareNative.addEventListener('click', async () => {
+      const currentUrl = window.location.href;
+      const paraEnvelope = document.getElementById('para-envelope');
+      const recipientName = paraEnvelope ? paraEnvelope.textContent.trim() : '';
+      
+      const shareData = {
+        title: 'Una Carta Especial 💖',
+        text: recipientName
+          ? `¡Hola! Mira esta carta especial para ${recipientName} 💖✨`
+          : '¡Te he compartido una carta de amor especial! 💖✨',
+        url: currentUrl
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            copyCurrentPageUrl();
+          }
+        }
+      } else {
+        copyCurrentPageUrl('¡Enlace copiado al portapapeles! 💖');
+      }
+    });
+  }
+
   // Close success modal
   const handleCloseSuccess = (e) => {
     if (e) e.stopPropagation();

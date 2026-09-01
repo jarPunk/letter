@@ -300,11 +300,17 @@
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.25s ease;
+      white-space: nowrap;
     }
 
     .btn-copy:hover {
       background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-copy.copied {
+      background: #25D366 !important;
+      color: #ffffff !important;
     }
 
     .actions-grid {
@@ -507,43 +513,124 @@
         </div>
       </div>
 
-      <button class="btn" id="btn-generate">Generar Enlace Corto</button>
+      <div class="actions-grid" style="margin-top: 15px;">
+        <button type="button" class="btn btn-secondary" id="btn-open-preview-modal" style="margin-top:0;">👁️ Previsualizar Carta</button>
+        <button type="button" class="btn" id="btn-generate" style="margin-top:0;">Generar Enlace Corto 🚀</button>
+      </div>
 
       <div class="results" id="results-section">
-        <div class="result-title">Enlace Corto (Recomendado):</div>
-        <div class="link-container">
-          <input type="text" class="link-input" id="short-link" readonly>
-          <button class="btn-copy" id="btn-copy-short">Copiar</button>
+        <div class="result-title">¡Carta Creada Exitosamente! 💖</div>
+        <div class="share-grid">
+          <button class="btn-social btn-copy-link" id="btn-share-copy" type="button">
+            <svg class="social-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span id="btn-share-copy-text">Copiar Link</span>
+          </button>
+          <button class="btn-social btn-wa" id="btn-share-wa" type="button">
+            <svg class="social-icon" viewBox="0 0 24 24"><path d="M12.031 0C5.396 0 0 5.397 0 12.035c0 2.116.553 4.18 1.604 5.993L0 24l6.166-1.616A11.968 11.968 0 0012.03 24c6.636 0 12.032-5.396 12.032-12.035C24.062 5.397 18.666 0 12.031 0zm.001 22.013c-1.802 0-3.568-.484-5.115-1.402l-.367-.218-3.797.996 1.013-3.699-.24-.383a9.98 9.98 0 01-1.532-5.273c0-5.523 4.495-10.016 10.038-10.016 5.54 0 10.035 4.493 10.035 10.016 0 5.525-4.495 10.016-10.035 10.016zm5.503-7.519c-.302-.152-1.785-.882-2.062-.982-.277-.101-.478-.152-.68.152-.201.303-.78 1.008-.956 1.21-.176.201-.352.226-.654.075-.302-.151-1.275-.47-2.428-1.498-.897-.801-1.503-1.79-1.68-2.093-.176-.302-.019-.465.132-.615.136-.135.302-.352.453-.529.151-.176.201-.302.302-.504.101-.202.05-.378-.025-.529-.076-.151-.68-1.639-.931-2.245-.245-.589-.494-.509-.68-.518-.176-.009-.378-.009-.58-.009-.201 0-.528.075-.804.378-.277.302-1.057 1.034-1.057 2.522 0 1.488 1.083 2.922 1.234 3.123.151.201 2.132 3.256 5.165 4.567.721.312 1.284.499 1.723.639.724.23 1.383.197 1.904.119.581-.087 1.785-.73 2.037-1.436.252-.706.252-1.311.176-1.436-.076-.126-.277-.202-.579-.354z"/></svg>
+            WhatsApp
+          </button>
+          <button class="btn-social btn-ig" id="btn-share-ig" type="button">
+            <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            Instagram
+          </button>
+          <button class="btn-social btn-share" id="btn-share-native" type="button">
+            <svg class="social-icon" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            Compartir
+          </button>
         </div>
 
-        <div class="result-title">Enlace de Respaldo (Base64 completo):</div>
-        <div class="link-container">
-          <input type="text" class="link-input" id="base64-link" readonly>
-          <button class="btn-copy" id="btn-copy-base64">Copiar</button>
-        </div>
-
-        <div class="actions-grid">
+        <div class="actions-grid" style="margin-top: 15px;">
           <button class="btn btn-secondary" id="btn-test" style="margin-top:0;">Probar Enlace ↗</button>
           <button class="btn btn-secondary" id="btn-restart" style="margin-top:0;">Crear Otra</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- LIVE PREVIEW CARD -->
-    <div class="preview-card" id="preview-card">
-      <div class="preview-header">Previsualización en Vivo</div>
-      <div class="preview-envelope">
-        <div class="preview-stamp" id="prev-stamp">❤️</div>
-        <div class="preview-address">
-          <div class="prev-to">Para: <span id="prev-para">María García</span></div>
-          <div class="prev-from">De: <span id="prev-de">Carlos Romero</span></div>
+  <!-- MODAL DE PREVISUALIZACIÓN 3D INTERACTIVA -->
+  <div class="preview-modal-screen" id="preview-modal-screen">
+    <div class="preview-modal-card">
+      <div class="preview-modal-header">
+        <div class="preview-modal-title">Previsualización en Vivo 💖</div>
+        <button type="button" class="preview-modal-close" id="btn-close-preview-modal">&times;</button>
+      </div>
+
+      <div class="preview-modal-body">
+        <div class="hint" id="prev-hint" style="margin-bottom: 20px; font-size: 13px;">Haz clic sobre el sobre para abrirlo o girarlo...</div>
+        
+        <div class="preview-3d-wrapper">
+          <div class="envelope-container" id="preview-envelope">
+            
+            <!-- FRONT OF THE ENVELOPE -->
+            <div class="envelope-front">
+              <div class="postal-details">
+                <div class="stamp">
+                  <div class="stamp-inner" id="prev-stamp">❤️</div>
+                </div>
+                <div class="postmark"></div>
+                <div class="address-plate">
+                  <div class="recipient">Para: <span id="prev-para">María García</span></div>
+                  <div class="sender">De: <span id="prev-de">Carlos Romero</span></div>
+                </div>
+              </div>
+              <div class="ribbon-vertical"></div>
+              <div class="ribbon-horizontal"></div>
+            </div>
+
+            <!-- BACK OF THE ENVELOPE -->
+            <div class="envelope-back">
+              <div class="letter" id="preview-letter">
+                <div class="letter-paper">
+                  <div class="letter-header">
+                    <span class="letter-date" id="prev-date">12 de Junio, 2026</span>
+                  </div>
+                  <div class="letter-content">
+                    <p class="salutation">Hola <span id="prev-letter-para">María</span>,</p>
+                    <p class="message" id="prev-msg">
+                      Tengo algo muy lindo que decirte...<br>
+                      ¿Quieres compartir este momento conmigo? ✨💖
+                    </p>
+                    <p class="closing">Con todo mi cariño,</p>
+                    <p class="signature" id="prev-letter-de">Carlos</p>
+                  </div>
+                  <div class="letter-rsvp">
+                    <button type="button" class="rsvp-btn btn-yes" id="prev-btn-yes">¡Sí! ❤️</button>
+                    <div class="btn-no-wrapper">
+                      <button type="button" class="rsvp-btn btn-no" id="prev-btn-no">No 😢</button>
+                    </div>
+                  </div>
+                  <div class="letter-back-btn" id="prev-letter-back-btn">
+                    <span>Guardar carta ↑</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pocket">
+                <div class="left-fold"></div>
+                <div class="right-fold"></div>
+                <div class="bottom-fold"></div>
+              </div>
+              
+              <div class="top-flap">
+                <div class="top-flap-outer"></div>
+                <div class="top-flap-inner"></div>
+              </div>
+              
+              <div class="wax-seal" id="prev-wax-seal">
+                <div class="seal-inner">
+                  <span class="seal-heart">♥</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
         </div>
       </div>
-      <div class="preview-letter-paper">
-        <div class="prev-salutation">Hola <span id="prev-letter-para">María</span>,</div>
-        <div class="prev-message" id="prev-msg">Tengo algo muy lindo que decirte...<br>¿Quieres compartir este momento conmigo? ✨💖</div>
-        <div class="prev-closing">Con todo mi cariño,</div>
-        <div class="prev-signature" id="prev-letter-de">Carlos</div>
+
+      <div class="preview-modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-close-preview-modal-footer" style="margin-top:0;">Cerrar</button>
+        <button type="button" class="btn" id="btn-generate-from-modal" style="margin-top:0;">Generar Enlace Corto 🚀</button>
       </div>
     </div>
   </div>
@@ -567,8 +654,19 @@
       const msgInput = document.getElementById('msg-input');
       const respInput = document.getElementById('resp-input');
 
-      // Preview Elements
-      const previewCard = document.getElementById('preview-card');
+      // 3D Preview Modal Logic & Elements
+      const previewModalScreen = document.getElementById('preview-modal-screen');
+      const btnOpenPreviewModal = document.getElementById('btn-open-preview-modal');
+      const btnClosePreviewModal = document.getElementById('btn-close-preview-modal');
+      const btnClosePreviewModalFooter = document.getElementById('btn-close-preview-modal-footer');
+      const btnGenerateFromModal = document.getElementById('btn-generate-from-modal');
+      
+      const previewEnvelope = document.getElementById('preview-envelope');
+      const prevWaxSeal = document.getElementById('prev-wax-seal');
+      const previewLetter = document.getElementById('preview-letter');
+      const prevLetterBackBtn = document.getElementById('prev-letter-back-btn');
+      const prevHint = document.getElementById('prev-hint');
+      
       const prevStamp = document.getElementById('prev-stamp');
       const prevPara = document.getElementById('prev-para');
       const prevDe = document.getElementById('prev-de');
@@ -576,15 +674,114 @@
       const prevLetterDe = document.getElementById('prev-letter-de');
       const prevMsg = document.getElementById('prev-msg');
       
-      const btnCopyShort = document.getElementById('btn-copy-short');
-      const btnCopyBase64 = document.getElementById('btn-copy-base64');
       const btnTest = document.getElementById('btn-test');
       const btnRestart = document.getElementById('btn-restart');
       const toast = document.getElementById('toast');
 
+      // Share buttons
+      const btnShareWa = document.getElementById('btn-share-wa');
+      const btnShareIg = document.getElementById('btn-share-ig');
+      const btnShareNative = document.getElementById('btn-share-native');
+      const btnShareCopy = document.getElementById('btn-share-copy');
+
       let currentLink = '';
       let selectedTheme = 'rose';
       let selectedEmoji = '❤️';
+      let previewState = 'front'; // front, back, opened, reading
+
+      // 0. Modal Open / Close & 3D Interactive Controls
+      const resetPreviewEnvelope = () => {
+        if (!previewEnvelope) return;
+        previewEnvelope.classList.remove('flipped', 'open');
+        if (previewLetter) previewLetter.classList.remove('zoomed');
+        previewState = 'front';
+        if (prevHint) prevHint.textContent = 'Haz clic sobre el sobre para abrirlo o girarlo...';
+      };
+
+      const openPreviewModal = () => {
+        updatePreviewText();
+        if (previewEnvelope) {
+          previewEnvelope.setAttribute('data-theme', selectedTheme);
+        }
+        document.body.setAttribute('data-theme', selectedTheme);
+        resetPreviewEnvelope();
+        if (previewModalScreen) previewModalScreen.classList.add('active');
+      };
+
+      const closePreviewModal = () => {
+        if (previewModalScreen) previewModalScreen.classList.remove('active');
+        resetPreviewEnvelope();
+      };
+
+      if (btnOpenPreviewModal) {
+        btnOpenPreviewModal.addEventListener('click', openPreviewModal);
+      }
+      if (btnClosePreviewModal) {
+        btnClosePreviewModal.addEventListener('click', closePreviewModal);
+      }
+      if (btnClosePreviewModalFooter) {
+        btnClosePreviewModalFooter.addEventListener('click', closePreviewModal);
+      }
+
+      if (btnGenerateFromModal) {
+        btnGenerateFromModal.addEventListener('click', () => {
+          closePreviewModal();
+          btnGenerate.click();
+        });
+      }
+
+      // Interactive 3D Envelope inside Preview Modal
+      if (previewEnvelope) {
+        previewEnvelope.addEventListener('click', (e) => {
+          if (
+            e.target.closest('#prev-wax-seal') || 
+            e.target.closest('#prev-letter-back-btn') || 
+            e.target.closest('.rsvp-btn')
+          ) return;
+
+          if (previewState === 'front') {
+            previewEnvelope.classList.add('flipped');
+            previewState = 'back';
+            if (prevHint) prevHint.textContent = 'Pulsa sobre el sello de cera para romperlo y abrir...';
+            return;
+          }
+
+          if (previewState === 'back' && !e.target.closest('#prev-wax-seal')) {
+            previewEnvelope.classList.remove('flipped');
+            previewState = 'front';
+            if (prevHint) prevHint.textContent = 'Haz clic sobre el sobre para abrirlo o girarlo...';
+            return;
+          }
+
+          if (previewState === 'opened' && e.target.closest('#preview-letter')) {
+            if (previewLetter) previewLetter.classList.add('zoomed');
+            previewState = 'reading';
+            if (prevHint) prevHint.textContent = 'Leyendo la carta...';
+          }
+        });
+      }
+
+      if (prevWaxSeal) {
+        prevWaxSeal.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (previewState === 'back') {
+            previewEnvelope.classList.add('open');
+            previewState = 'opened';
+            if (prevHint) prevHint.textContent = 'Haz clic en la carta para sacarla y leerla...';
+            setTimeout(() => {
+              if (previewLetter) previewLetter.classList.add('zoomed');
+              previewState = 'reading';
+            }, 1200);
+          }
+        });
+      }
+
+      if (prevLetterBackBtn) {
+        prevLetterBackBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          resetPreviewEnvelope();
+        });
+      }
 
       // 1. Live Text Updates
       const updatePreviewText = () => {
@@ -621,7 +818,7 @@
 
           selectedTheme = btn.getAttribute('data-theme');
           document.body.setAttribute('data-theme', selectedTheme);
-          previewCard.setAttribute('data-theme', selectedTheme);
+          if (previewEnvelope) previewEnvelope.setAttribute('data-theme', selectedTheme);
 
           // Update default emoji for selected theme if not explicitly chosen
           const defaultEmoji = btn.getAttribute('data-default-emoji');
@@ -680,7 +877,7 @@
           .replace(/\//g, '_')
           .replace(/=+$/, '');
         const backupUrl = `${baseURI}index.html?c=${base64}&t=${selectedTheme}&e=${encodeURIComponent(selectedEmoji)}`;
-        base64LinkInput.value = backupUrl;
+        currentLink = backupUrl;
 
         // 2. Si Supabase está configurado, guardar en la Base de Datos
         if (window.SupabaseLetterDB && window.SupabaseLetterDB.isConfigured()) {
@@ -694,12 +891,9 @@
             });
 
             const dbUrl = `${baseURI}index.html?l=${letter.short_code}&t=${selectedTheme}&e=${encodeURIComponent(selectedEmoji)}`;
-            shortLinkInput.value = dbUrl;
             currentLink = dbUrl;
           } catch (err) {
             console.error('Error al guardar en Supabase:', err);
-            alert('Aviso: Ocurrió un detalle al conectar con Supabase. Usando enlace de respaldo.');
-            shortLinkInput.value = backupUrl;
             currentLink = backupUrl;
           }
         } else {
@@ -711,16 +905,10 @@
             if (response.ok) {
               const data = await response.json();
               if (data.shorturl) {
-                shortLinkInput.value = data.shorturl;
                 currentLink = data.shorturl;
-              } else {
-                throw new Error('No shorturl');
               }
-            } else {
-              throw new Error('Network error');
             }
           } catch (err) {
-            shortLinkInput.value = backupUrl;
             currentLink = backupUrl;
           }
         }
@@ -731,27 +919,90 @@
         btnGenerate.style.display = 'none';
       });
 
-      // Copy mechanisms
-      const showToast = () => {
+      // Copy & Share mechanisms
+      const showToast = (message = '¡Enlace copiado al portapapeles! 💖') => {
+        toast.textContent = message;
         toast.classList.add('active');
         setTimeout(() => {
           toast.classList.remove('active');
-        }, 2500);
+        }, 2800);
       };
 
-      const copyToClipboard = async (inputEl) => {
+      const copyToClipboardText = async (text, toastMsg) => {
         try {
-          await navigator.clipboard.writeText(inputEl.value);
-          showToast();
+          await navigator.clipboard.writeText(text);
+          showToast(toastMsg || '¡Enlace copiado al portapapeles! 💖');
         } catch (err) {
-          inputEl.select();
+          const tempInput = document.createElement('textarea');
+          tempInput.value = text;
+          document.body.appendChild(tempInput);
+          tempInput.select();
           document.execCommand('copy');
-          showToast();
+          document.body.removeChild(tempInput);
+          showToast(toastMsg || '¡Enlace copiado al portapapeles! 💖');
         }
       };
 
-      btnCopyShort.addEventListener('click', () => copyToClipboard(shortLinkInput));
-      btnCopyBase64.addEventListener('click', () => copyToClipboard(base64LinkInput));
+      if (btnShareCopy) {
+        const copySpan = document.getElementById('btn-share-copy-text');
+        btnShareCopy.addEventListener('click', () => {
+          if (!currentLink) return;
+          copyToClipboardText(currentLink);
+          btnShareCopy.classList.add('copied');
+          if (copySpan) copySpan.textContent = '¡Copiado! ✓';
+          setTimeout(() => {
+            btnShareCopy.classList.remove('copied');
+            if (copySpan) copySpan.textContent = 'Copiar Link';
+          }, 2200);
+        });
+      }
+
+      if (btnShareWa) {
+        btnShareWa.addEventListener('click', () => {
+          if (!currentLink) return;
+          const targetName = paraInput.value.trim();
+          const messageText = targetName
+            ? `¡Hola ${targetName}! Te he enviado una carta de amor especial 💖✨ Mírala aquí: ${currentLink}`
+            : `¡Hola! Te he enviado una carta de amor especial 💖✨ Mírala aquí: ${currentLink}`;
+          const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(messageText)}`;
+          window.open(waUrl, '_blank');
+        });
+      }
+
+      if (btnShareIg) {
+        btnShareIg.addEventListener('click', async () => {
+          if (!currentLink) return;
+          await copyToClipboardText(currentLink, '¡Enlace copiado! Redirigiendo a Instagram... 📸');
+          setTimeout(() => {
+            window.open('https://www.instagram.com/direct/inbox/', '_blank');
+          }, 1200);
+        });
+      }
+
+      if (btnShareNative) {
+        btnShareNative.addEventListener('click', async () => {
+          if (!currentLink) return;
+          const targetName = paraInput.value.trim();
+          const shareData = {
+            title: 'Una Carta Especial 💖',
+            text: targetName
+              ? `¡Hola ${targetName}! Te he enviado una carta de amor especial 💖✨`
+              : 'Te he enviado una carta de amor especial 💖✨',
+            url: currentLink
+          };
+          if (navigator.share) {
+            try {
+              await navigator.share(shareData);
+            } catch (err) {
+              if (err.name !== 'AbortError') {
+                copyToClipboardText(currentLink);
+              }
+            }
+          } else {
+            copyToClipboardText(currentLink, '¡Enlace copiado al portapapeles! 💖');
+          }
+        });
+      }
 
       btnTest.addEventListener('click', () => {
         window.open(currentLink, '_blank');
