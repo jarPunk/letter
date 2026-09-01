@@ -314,6 +314,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let resp = params.get('resp');
     let fecha = params.get('fecha');
     let phoneParam = params.get('phone') || params.get('tel');
+    let themeParam = params.get('t') || params.get('theme');
+    let emojiParam = params.get('e') || params.get('emoji');
     const compressed = params.get('c');
     const shortCode = params.get('l') || params.get('code');
     
@@ -359,14 +361,29 @@ document.addEventListener('DOMContentLoaded', async () => {
           base64 += '=';
         }
         const decoded = decodeURIComponent(escape(window.atob(base64)));
-        const parts = decoded.split('|');
-        if (parts.length >= 3) {
-          para = parts[0];
-          de = parts[1];
-          msg = parts[2];
-          resp = parts[3] || ''; // 4th part holds acceptance response message
-          if (parts[4]) senderPhone = parts[4];
-          if (parts[5]) fecha = parts[5];
+        
+        if (decoded.startsWith('{')) {
+          const dataObj = JSON.parse(decoded);
+          if (dataObj.para) para = dataObj.para;
+          if (dataObj.de) de = dataObj.de;
+          if (dataObj.msg) msg = dataObj.msg;
+          if (dataObj.resp) resp = dataObj.resp;
+          if (dataObj.phone) senderPhone = dataObj.phone;
+          if (dataObj.theme && !themeParam) themeParam = dataObj.theme;
+          if (dataObj.emoji && !emojiParam) emojiParam = dataObj.emoji;
+          if (dataObj.fecha) fecha = dataObj.fecha;
+        } else {
+          const parts = decoded.split('|');
+          if (parts.length >= 3) {
+            para = parts[0];
+            de = parts[1];
+            msg = parts[2];
+            resp = parts[3] || '';
+            if (parts[4]) senderPhone = parts[4];
+            if (parts[5] && !themeParam) themeParam = parts[5];
+            if (parts[6] && !emojiParam) emojiParam = parts[6];
+            if (parts[7]) fecha = parts[7];
+          }
         }
       } catch (err) {
         console.error('Error decoding compressed parameters:', err);
@@ -375,6 +392,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (fecha) {
       updateLetterDate(fecha);
+    }
+
+    if (themeParam) {
+      document.body.setAttribute('data-theme', themeParam);
+      document.documentElement.setAttribute('data-theme', themeParam);
+    }
+
+    if (emojiParam) {
+      const stampEmojiEl = document.getElementById('stamp-emoji');
+      if (stampEmojiEl) stampEmojiEl.textContent = emojiParam;
     }
     
     // Update DOM elements

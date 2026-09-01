@@ -6,18 +6,11 @@
   <title>Creador de Cartas de Amor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Sacramento&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
   <style>
     :root {
-      --bg-gradient: radial-gradient(circle at center, #230914 0%, #0a0206 100%);
-      --env-base: #e599a4;
-      --env-base-light: #f0b2bc;
-      --env-base-dark: #d4828f;
       --paper-color: #fffdf9;
-      --text-dark: #3f0c1f;
-      --text-muted: #801f3f;
-      --font-heading: 'Playfair Display', serif;
-      --font-body: 'Outfit', sans-serif;
       --gold-foil: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
     }
 
@@ -27,17 +20,55 @@
       padding: 0;
     }
 
-    body {
+    html, body {
       min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+    }
+
+    body {
       background: var(--bg-gradient);
       font-family: var(--font-body);
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 30px 15px;
+      color: #fffdf5;
+      position: relative;
+      transition: background 0.5s ease;
+    }
+
+    .generator-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      width: 100%;
+      max-width: 1080px;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      color: #fffdf5;
-      overflow-x: hidden;
-      position: relative;
+      z-index: 5;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 850px) {
+      .generator-wrapper {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+      }
+
+      .card {
+        flex: 1 1 520px;
+        max-width: 540px;
+      }
+
+      .preview-card {
+        flex: 1 1 420px;
+        max-width: 460px;
+        position: sticky;
+        top: 20px;
+      }
     }
 
     .card {
@@ -45,11 +76,9 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(12px);
       width: 100%;
-      max-width: 500px;
       border-radius: 20px;
       padding: 35px 30px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-      z-index: 5;
       position: relative;
       border: 1px solid rgba(229, 153, 164, 0.25);
     }
@@ -107,7 +136,75 @@
 
     textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 90px;
+    }
+
+    /* Theme Picker Grid */
+    .theme-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .theme-opt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      user-select: none;
+    }
+
+    .theme-opt:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.35);
+    }
+
+    .theme-opt.active {
+      border-color: #ffffff;
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.7);
+      transform: scale(1.05);
+    }
+
+    /* Emoji Picker Grid */
+    .emoji-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .emoji-opt {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .emoji-opt:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+    }
+
+    .emoji-opt.active {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: var(--env-base-light);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+      transform: scale(1.15);
     }
 
     .btn {
@@ -120,7 +217,7 @@
       font-weight: 600;
       font-size: 16px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(229, 153, 164, 0.3);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
       font-family: var(--font-body);
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       margin-top: 10px;
@@ -128,7 +225,7 @@
 
     .btn:hover {
       background: var(--env-base);
-      box-shadow: 0 6px 20px rgba(229, 153, 164, 0.45);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
       transform: translateY(-2px);
     }
 
@@ -227,6 +324,96 @@
       box-shadow: none;
     }
 
+    /* Live Preview Card Styles */
+    .preview-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      width: 100%;
+      border-radius: 20px;
+      padding: 25px 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      transition: border-color 0.4s ease;
+    }
+
+    .preview-header {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--env-base-light);
+      text-align: center;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-bottom: 10px;
+    }
+
+    .preview-envelope {
+      width: 100%;
+      height: 180px;
+      background: var(--env-base);
+      border: 3px solid var(--env-base-light);
+      border-radius: 10px;
+      position: relative;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.2);
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    .preview-stamp {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 44px;
+      height: 44px;
+      background: #fffdf5;
+      border: 2px dashed var(--env-base-dark);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transform: rotate(5deg);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .preview-address {
+      margin-top: auto;
+      font-family: var(--font-cursive);
+      color: var(--text-dark);
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .prev-to span, .prev-from span {
+      font-weight: bold;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .preview-letter-paper {
+      background: var(--paper-color);
+      border-radius: 8px;
+      padding: 15px;
+      color: var(--text-dark);
+      font-family: var(--font-cursive);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .prev-salutation { font-size: 20px; font-weight: bold; }
+    .prev-message { font-size: 21px; margin: 8px 0; min-height: 45px; word-break: break-word; line-height: 1.3; }
+    .prev-closing { font-size: 17px; text-align: right; }
+    .prev-signature { font-size: 20px; text-align: right; font-weight: bold; }
+
     .toast {
       position: fixed;
       bottom: 25px;
@@ -250,52 +437,113 @@
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Creador de Cartas de Amor</h1>
-    
-    <div class="form-group">
-      <label for="para-input">Para (Destinatario):</label>
-      <input type="text" id="para-input" placeholder="Ej: María García">
-    </div>
-
-    <div class="form-group">
-      <label for="de-input">De (Remitente):</label>
-      <input type="text" id="de-input" placeholder="Ej: Carlos Romero">
-    </div>
-
-    <div class="form-group">
-      <label for="phone-input">Tu Número de Teléfono / WhatsApp (Remitente):</label>
-      <input type="tel" id="phone-input" placeholder="Ej: +56912345678">
-    </div>
-
-    <div class="form-group">
-      <label for="msg-input">Mensaje de la Carta:</label>
-      <textarea id="msg-input" placeholder="Escribe tu mensaje especial aquí...&#10;Ej: ¿Quieres salir conmigo a compartir un momento especial? ✨💖"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="resp-input">Mensaje de Aceptación (Al decir Sí):</label>
-      <textarea id="resp-input" placeholder="Mensaje que verá al aceptar (Opcional)&#10;Ej: ¡Sabía que dirías que sí! Ya estoy preparando todo. 🥰✨"></textarea>
-    </div>
-
-    <button class="btn" id="btn-generate">Generar Enlace Corto</button>
-
-    <div class="results" id="results-section">
-      <div class="result-title">Enlace Corto (Recomendado):</div>
-      <div class="link-container">
-        <input type="text" class="link-input" id="short-link" readonly>
-        <button class="btn-copy" id="btn-copy-short">Copiar</button>
+  <div class="generator-wrapper">
+    <!-- FORM CARD -->
+    <div class="card">
+      <h1>Creador de Cartas de Amor</h1>
+      
+      <div class="form-group">
+        <label for="para-input">Para (Destinatario):</label>
+        <input type="text" id="para-input" placeholder="Ej: María García">
       </div>
 
-      <div class="result-title">Enlace de Respaldo (Base64 completo):</div>
-      <div class="link-container">
-        <input type="text" class="link-input" id="base64-link" readonly>
-        <button class="btn-copy" id="btn-copy-base64">Copiar</button>
+      <div class="form-group">
+        <label for="de-input">De (Remitente):</label>
+        <input type="text" id="de-input" placeholder="Ej: Carlos Romero">
       </div>
 
-      <div class="actions-grid">
-        <button class="btn btn-secondary" id="btn-test" style="margin-top:0;">Probar Enlace ↗</button>
-        <button class="btn btn-secondary" id="btn-restart" style="margin-top:0;">Crear Otra</button>
+      <div class="form-group">
+        <label for="phone-input">Tu Número de Teléfono / WhatsApp (Remitente):</label>
+        <input type="tel" id="phone-input" placeholder="Ej: +56912345678">
+      </div>
+
+      <div class="form-group">
+        <label for="msg-input">Mensaje de la Carta:</label>
+        <textarea id="msg-input" placeholder="Escribe tu mensaje especial aquí...&#10;Ej: ¿Quieres salir conmigo a compartir un momento especial? ✨💖"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="resp-input">Mensaje de Aceptación (Al decir Sí):</label>
+        <textarea id="resp-input" placeholder="Mensaje que verá al aceptar (Opcional)&#10;Ej: ¡Sabía que dirías que sí! Ya estoy preparando todo. 🥰✨"></textarea>
+      </div>
+
+      <!-- Color Theme Selector -->
+      <div class="form-group">
+        <label>Elige el Color de la Carta:</label>
+        <div class="theme-selector" id="theme-selector">
+          <button type="button" class="theme-opt active" data-theme="rose" data-default-emoji="❤️" style="background: linear-gradient(135deg, #e599a4, #f0b2bc);">
+            <span>Rosa</span>
+          </button>
+          <button type="button" class="theme-opt" data-theme="ruby" data-default-emoji="🌹" style="background: linear-gradient(135deg, #d90429, #ef233c);">
+            <span>Rojo</span>
+          </button>
+          <button type="button" class="theme-opt" data-theme="purple" data-default-emoji="💜" style="background: linear-gradient(135deg, #9d4edd, #c77dff);">
+            <span>Púrpura</span>
+          </button>
+          <button type="button" class="theme-opt" data-theme="midnight" data-default-emoji="🌙" style="background: linear-gradient(135deg, #415a77, #778da9);">
+            <span>Azul</span>
+          </button>
+          <button type="button" class="theme-opt" data-theme="gold" data-default-emoji="👑" style="background: linear-gradient(135deg, #e0a96d, #f4c47f);">
+            <span>Dorado</span>
+          </button>
+          <button type="button" class="theme-opt" data-theme="emerald" data-default-emoji="🌿" style="background: linear-gradient(135deg, #52b788, #74c69d);">
+            <span>Verde</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Emoji Stamp Selector -->
+      <div class="form-group">
+        <label>Emoji de la Estampilla:</label>
+        <div class="emoji-selector" id="emoji-selector">
+          <button type="button" class="emoji-opt active" data-emoji="❤️">❤️</button>
+          <button type="button" class="emoji-opt" data-emoji="🌹">🌹</button>
+          <button type="button" class="emoji-opt" data-emoji="💜">💜</button>
+          <button type="button" class="emoji-opt" data-emoji="🌙">🌙</button>
+          <button type="button" class="emoji-opt" data-emoji="👑">👑</button>
+          <button type="button" class="emoji-opt" data-emoji="🌿">🌿</button>
+          <button type="button" class="emoji-opt" data-emoji="💖">💖</button>
+          <button type="button" class="emoji-opt" data-emoji="💌">💌</button>
+        </div>
+      </div>
+
+      <button class="btn" id="btn-generate">Generar Enlace Corto</button>
+
+      <div class="results" id="results-section">
+        <div class="result-title">Enlace Corto (Recomendado):</div>
+        <div class="link-container">
+          <input type="text" class="link-input" id="short-link" readonly>
+          <button class="btn-copy" id="btn-copy-short">Copiar</button>
+        </div>
+
+        <div class="result-title">Enlace de Respaldo (Base64 completo):</div>
+        <div class="link-container">
+          <input type="text" class="link-input" id="base64-link" readonly>
+          <button class="btn-copy" id="btn-copy-base64">Copiar</button>
+        </div>
+
+        <div class="actions-grid">
+          <button class="btn btn-secondary" id="btn-test" style="margin-top:0;">Probar Enlace ↗</button>
+          <button class="btn btn-secondary" id="btn-restart" style="margin-top:0;">Crear Otra</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE PREVIEW CARD -->
+    <div class="preview-card" id="preview-card">
+      <div class="preview-header">Previsualización en Vivo</div>
+      <div class="preview-envelope">
+        <div class="preview-stamp" id="prev-stamp">❤️</div>
+        <div class="preview-address">
+          <div class="prev-to">Para: <span id="prev-para">María García</span></div>
+          <div class="prev-from">De: <span id="prev-de">Carlos Romero</span></div>
+        </div>
+      </div>
+      <div class="preview-letter-paper">
+        <div class="prev-salutation">Hola <span id="prev-letter-para">María</span>,</div>
+        <div class="prev-message" id="prev-msg">Tengo algo muy lindo que decirte...<br>¿Quieres compartir este momento conmigo? ✨💖</div>
+        <div class="prev-closing">Con todo mi cariño,</div>
+        <div class="prev-signature" id="prev-letter-de">Carlos</div>
       </div>
     </div>
   </div>
@@ -318,6 +566,15 @@
       const phoneInput = document.getElementById('phone-input');
       const msgInput = document.getElementById('msg-input');
       const respInput = document.getElementById('resp-input');
+
+      // Preview Elements
+      const previewCard = document.getElementById('preview-card');
+      const prevStamp = document.getElementById('prev-stamp');
+      const prevPara = document.getElementById('prev-para');
+      const prevDe = document.getElementById('prev-de');
+      const prevLetterPara = document.getElementById('prev-letter-para');
+      const prevLetterDe = document.getElementById('prev-letter-de');
+      const prevMsg = document.getElementById('prev-msg');
       
       const btnCopyShort = document.getElementById('btn-copy-short');
       const btnCopyBase64 = document.getElementById('btn-copy-base64');
@@ -326,7 +583,77 @@
       const toast = document.getElementById('toast');
 
       let currentLink = '';
+      let selectedTheme = 'rose';
+      let selectedEmoji = '❤️';
 
+      // 1. Live Text Updates
+      const updatePreviewText = () => {
+        const paraVal = paraInput.value.trim();
+        const deVal = deInput.value.trim();
+        const msgVal = msgInput.value.trim();
+
+        prevPara.textContent = paraVal || 'María García';
+        prevDe.textContent = deVal || 'Carlos Romero';
+
+        const firstNamePara = paraVal ? paraVal.split(' ')[0] : 'María';
+        const firstNameDe = deVal ? deVal.split(' ')[0] : 'Carlos';
+
+        prevLetterPara.textContent = firstNamePara;
+        prevLetterDe.textContent = firstNameDe;
+
+        if (msgVal) {
+          prevMsg.innerHTML = msgVal.replace(/\n/g, '<br>');
+        } else {
+          prevMsg.innerHTML = 'Tengo algo muy lindo que decirte...<br>¿Quieres compartir este momento conmigo? ✨💖';
+        }
+      };
+
+      paraInput.addEventListener('input', updatePreviewText);
+      deInput.addEventListener('input', updatePreviewText);
+      msgInput.addEventListener('input', updatePreviewText);
+
+      // 2. Theme Picker
+      const themeOpts = document.querySelectorAll('.theme-opt');
+      themeOpts.forEach(btn => {
+        btn.addEventListener('click', () => {
+          themeOpts.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          selectedTheme = btn.getAttribute('data-theme');
+          document.body.setAttribute('data-theme', selectedTheme);
+          previewCard.setAttribute('data-theme', selectedTheme);
+
+          // Update default emoji for selected theme if not explicitly chosen
+          const defaultEmoji = btn.getAttribute('data-default-emoji');
+          if (defaultEmoji) {
+            selectedEmoji = defaultEmoji;
+            prevStamp.textContent = selectedEmoji;
+            
+            // Sync emoji selector buttons
+            emojiOpts.forEach(eb => {
+              if (eb.getAttribute('data-emoji') === selectedEmoji) {
+                eb.classList.add('active');
+              } else {
+                eb.classList.remove('active');
+              }
+            });
+          }
+        });
+      });
+
+      // 3. Emoji Picker
+      const emojiOpts = document.querySelectorAll('.emoji-opt');
+      emojiOpts.forEach(btn => {
+        btn.addEventListener('click', () => {
+          emojiOpts.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          selectedEmoji = btn.getAttribute('data-emoji');
+          prevStamp.textContent = selectedEmoji;
+        });
+      });
+
+      // 4. Link Generation
       btnGenerate.addEventListener('click', async () => {
         const para = paraInput.value.trim();
         const de = deInput.value.trim();
@@ -344,14 +671,15 @@
 
         const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
 
-        // 1. Crear respaldo local Base64 URL-safe
-        const combined = `${para}|${de}|${msg}|${resp}|${phone}`;
-        const utf8Bytes = encodeURIComponent(combined);
+        // 1. Crear respaldo local Base64 URL-safe con JSON estructurado
+        const payloadObj = { para, de, msg, resp, phone, theme: selectedTheme, emoji: selectedEmoji };
+        const jsonStr = JSON.stringify(payloadObj);
+        const utf8Bytes = encodeURIComponent(jsonStr);
         const base64 = window.btoa(unescape(utf8Bytes))
           .replace(/\+/g, '-')
           .replace(/\//g, '_')
           .replace(/=+$/, '');
-        const backupUrl = `${baseURI}index.html?c=${base64}`;
+        const backupUrl = `${baseURI}index.html?c=${base64}&t=${selectedTheme}&e=${encodeURIComponent(selectedEmoji)}`;
         base64LinkInput.value = backupUrl;
 
         // 2. Si Supabase está configurado, guardar en la Base de Datos
@@ -365,7 +693,7 @@
               acceptance_message: resp
             });
 
-            const dbUrl = `${baseURI}index.html?l=${letter.short_code}`;
+            const dbUrl = `${baseURI}index.html?l=${letter.short_code}&t=${selectedTheme}&e=${encodeURIComponent(selectedEmoji)}`;
             shortLinkInput.value = dbUrl;
             currentLink = dbUrl;
           } catch (err) {
@@ -437,6 +765,7 @@
         phoneInput.value = '';
         msgInput.value = '';
         respInput.value = '';
+        updatePreviewText();
       });
     });
   </script>
