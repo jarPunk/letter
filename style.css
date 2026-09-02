@@ -8,6 +8,7 @@
   --env-base-light: #f0b2bc;
   --env-base-dark: #d4828f;
   --env-inside: #5e1927;
+  --flap-inner: #d4828f;
   
   --seal-color: radial-gradient(circle at 35% 35%, #ff4d6d 0%, #a4133c 100%);
   --seal-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.4);
@@ -30,6 +31,7 @@
   --env-base-light: #ef233c;
   --env-base-dark: #a0001c;
   --env-inside: #4a000b;
+  --flap-inner: #a0001c;
   --seal-color: radial-gradient(circle at 35% 35%, #ff4d6d 0%, #7209b7 100%);
   --text-dark: #3a0007;
   --text-muted: #800016;
@@ -41,6 +43,7 @@
   --env-base-light: #c77dff;
   --env-base-dark: #7b2cbf;
   --env-inside: #3c096c;
+  --flap-inner: #7b2cbf;
   --seal-color: radial-gradient(circle at 35% 35%, #e0aaff 0%, #5a189a 100%);
   --text-dark: #240046;
   --text-muted: #5a189a;
@@ -52,6 +55,7 @@
   --env-base-light: #778da9;
   --env-base-dark: #203a56;
   --env-inside: #0d1b2a;
+  --flap-inner: #203a56;
   --seal-color: radial-gradient(circle at 35% 35%, #60a5fa 0%, #1e3a8a 100%);
   --text-dark: #0d1b2a;
   --text-muted: #1b263b;
@@ -63,6 +67,7 @@
   --env-base-light: #f4c47f;
   --env-base-dark: #b8860b;
   --env-inside: #4a3410;
+  --flap-inner: #b8860b;
   --seal-color: radial-gradient(circle at 35% 35%, #fbbf24 0%, #b45309 100%);
   --text-dark: #382405;
   --text-muted: #784e0b;
@@ -74,6 +79,7 @@
   --env-base-light: #74c69d;
   --env-base-dark: #2d6a4f;
   --env-inside: #1b4332;
+  --flap-inner: #2d6a4f;
   --seal-color: radial-gradient(circle at 35% 35%, #52b788 0%, #081c15 100%);
   --text-dark: #081c15;
   --text-muted: #1b4332;
@@ -87,6 +93,7 @@
 
 body {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
@@ -95,6 +102,35 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
+}
+
+/* Toast Notification */
+.toast {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--env-base-dark);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  display: none !important;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.active {
+  display: block !important;
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Background floating hearts */
@@ -570,13 +606,14 @@ body {
 }
 
 .btn-yes {
-  background: var(--flap-inner);
-  color: #fff;
+  background: linear-gradient(135deg, #ff4d6d 0%, #c9184a 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(255, 77, 109, 0.4);
 }
 
 .btn-yes:hover, .btn-yes:active {
-  background: #ff4d6d;
-  box-shadow: 0 6px 15px rgba(255, 77, 109, 0.4);
+  background: linear-gradient(135deg, #ff758f 0%, #ff4d6d 100%);
+  box-shadow: 0 6px 18px rgba(255, 77, 109, 0.6);
   transform: translateY(-2px) scale(1.05);
 }
 
@@ -845,9 +882,45 @@ body {
 }
 
 /* Responsiveness tweaks for smaller mobile phones */
+.phone-input-group {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.country-code-select {
+  flex: 0 0 135px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  padding: 12px 10px;
+  border-radius: 10px;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.country-code-select option {
+  background: #1a0812;
+  color: #ffffff;
+  padding: 8px;
+}
+
+.country-code-select:focus {
+  border-color: var(--env-base);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 10px rgba(229, 153, 164, 0.25);
+}
+
+.phone-input-field {
+  flex: 1;
+}
+
 @media (max-width: 480px) {
   :root {
-    --envelope-width: min(360px, 88vw);
+    --envelope-width: min(340px, 86vw);
     --envelope-height: calc(var(--envelope-width) * 0.68);
   }
 
@@ -866,6 +939,17 @@ body {
   .letter-paper {
     background-size: 100% 20px;
     line-height: 20px;
+    padding: 12px 10px;
+    max-height: 100%;
+    overflow-y: auto;
+  }
+  
+  .letter-paper::-webkit-scrollbar {
+    width: 4px;
+  }
+  .letter-paper::-webkit-scrollbar-thumb {
+    background: rgba(164, 19, 60, 0.25);
+    border-radius: 4px;
   }
   
   .salutation {
@@ -886,9 +970,9 @@ body {
   }
   
   .letter.zoomed {
-    height: 155% !important;
-    top: -28% !important;
-    transform: translate3d(0, 0, 160px) scale(1.04) rotate(0deg) !important;
+    height: 148% !important;
+    top: -24% !important;
+    transform: translate3d(0, 0, 140px) scale(1.02) rotate(0deg) !important;
     overflow: visible !important;
   }
   
@@ -913,6 +997,12 @@ body {
     font-size: 12px;
     padding: 3px;
   }
+  
+  .country-code-select {
+    flex: 0 0 115px;
+    font-size: 13px;
+    padding: 12px 6px;
+  }
 }
 
 /* Floating Shortcut to Generator Page */
@@ -920,27 +1010,36 @@ body {
   position: fixed;
   top: 20px;
   right: 20px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 13px;
   text-decoration: none;
   font-family: var(--font-body);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 6px 14px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: all 0.3s ease;
   z-index: 1000;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
+@media (max-width: 600px) {
+  .create-own-btn {
+    top: 10px;
+    right: 10px;
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+}
+
 .create-own-btn:hover {
   color: #fff;
   border-color: var(--env-base);
-  background: rgba(229, 153, 164, 0.15);
-  box-shadow: 0 0 10px rgba(229, 153, 164, 0.2);
+  background: rgba(229, 153, 164, 0.25);
+  box-shadow: 0 0 12px rgba(229, 153, 164, 0.3);
 }
 
 /* Toggle Preview Button & Collapsible Preview Card */

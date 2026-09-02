@@ -420,26 +420,6 @@
     .prev-closing { font-size: 17px; text-align: right; }
     .prev-signature { font-size: 20px; text-align: right; font-weight: bold; }
 
-    .toast {
-      position: fixed;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--env-base-dark);
-      color: white;
-      padding: 10px 24px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      pointer-events: none;
-    }
-
-    .toast.active {
-      transform: translateX(-50%) translateY(0);
-    }
   </style>
 </head>
 <body>
@@ -460,7 +440,33 @@
 
       <div class="form-group">
         <label for="phone-input">Tu Número de Teléfono / WhatsApp (Remitente):</label>
-        <input type="tel" id="phone-input" placeholder="Ej: +56912345678">
+        <div class="phone-input-group">
+          <select id="country-code-select" class="country-code-select" aria-label="Código de País">
+            <option value="+56">🇨🇱 +56 (Chile)</option>
+            <option value="+52">🇲🇽 +52 (México)</option>
+            <option value="+54">🇦🇷 +54 (Argentina)</option>
+            <option value="+57">🇨🇴 +57 (Colombia)</option>
+            <option value="+34">🇪🇸 +34 (España)</option>
+            <option value="+51">🇵🇪 +51 (Perú)</option>
+            <option value="+58">🇻🇪 +58 (Venezuela)</option>
+            <option value="+593">🇪🇨 +593 (Ecuador)</option>
+            <option value="+502">🇬🇹 +502 (Guatemala)</option>
+            <option value="+503">🇸🇻 +503 (El Salvador)</option>
+            <option value="+504">🇭🇳 +504 (Honduras)</option>
+            <option value="+505">🇳🇮 +505 (Nicaragua)</option>
+            <option value="+506">🇨🇷 +506 (Costa Rica)</option>
+            <option value="+507">🇵🇦 +507 (Panamá)</option>
+            <option value="+591">🇧🇴 +591 (Bolivia)</option>
+            <option value="+595">🇵🇾 +595 (Paraguay)</option>
+            <option value="+598">🇺🇾 +598 (Uruguay)</option>
+            <option value="+53">🇨🇺 +53 (Cuba)</option>
+            <option value="+1">🇩🇴 +1 (Rep. Dom.)</option>
+            <option value="+1">🇺🇸 +1 (EE.UU. / CA)</option>
+            <option value="+55">🇧🇷 +55 (Brasil)</option>
+            <option value="">🌐 Otro / Manual</option>
+          </select>
+          <input type="tel" id="phone-input" class="phone-input-field" placeholder="Ej: 912345678">
+        </div>
       </div>
 
       <div class="form-group">
@@ -635,7 +641,7 @@
     </div>
   </div>
 
-  <div class="toast" id="toast">¡Enlace copiado al portapapeles! 💖</div>
+  <div class="toast" id="toast"></div>
 
   <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -648,11 +654,21 @@
       const shortLinkInput = document.getElementById('short-link');
       const base64LinkInput = document.getElementById('base64-link');
       
+      const countryCodeSelect = document.getElementById('country-code-select');
       const paraInput = document.getElementById('para-input');
       const deInput = document.getElementById('de-input');
       const phoneInput = document.getElementById('phone-input');
       const msgInput = document.getElementById('msg-input');
       const respInput = document.getElementById('resp-input');
+
+      const getFullPhone = () => {
+        const code = countryCodeSelect ? countryCodeSelect.value : '';
+        let raw = phoneInput ? phoneInput.value.trim() : '';
+        if (!raw) return '';
+        if (raw.startsWith('+')) return raw;
+        raw = raw.replace(/^0+/, '');
+        return `${code}${raw}`;
+      };
 
       // 3D Preview Modal Logic & Elements
       const previewModalScreen = document.getElementById('preview-modal-screen');
@@ -854,7 +870,7 @@
       btnGenerate.addEventListener('click', async () => {
         const para = paraInput.value.trim();
         const de = deInput.value.trim();
-        const phone = phoneInput.value.trim();
+        const phone = getFullPhone();
         const msg = msgInput.value.trim();
         const resp = respInput.value.trim() || '¡Sabía que dirías que sí! Todo está listo para nuestro momento especial. 🥰✨';
 
@@ -1014,6 +1030,7 @@
         paraInput.value = '';
         deInput.value = '';
         phoneInput.value = '';
+        if (countryCodeSelect) countryCodeSelect.selectedIndex = 0;
         msgInput.value = '';
         respInput.value = '';
         updatePreviewText();
