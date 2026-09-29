@@ -120,14 +120,12 @@ body {
   z-index: 9999;
   opacity: 0;
   visibility: hidden;
-  display: none !important;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, visibility 0.3s ease;
   pointer-events: none;
   white-space: nowrap;
 }
 
 .toast.active {
-  display: block !important;
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
@@ -1277,6 +1275,43 @@ body {
   justify-content: center;
   margin-top: 10px;
 }
+
+/* --- Fix: botones del modal de éxito sobre tarjeta clara --- */
+/* .btn-copy-link y .btn-share estaban diseñados para fondo oscuro
+   (texto blanco sobre fondo translúcido) y quedaban invisibles
+   sobre la tarjeta papel clara. Se les da contraste propio. */
+.success-card .share-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.success-card .btn-social.btn-copy-link {
+  background: #3f0c1f;
+  border: 1px solid #3f0c1f;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(63, 12, 31, 0.35);
+}
+
+.success-card .btn-social.btn-copy-link:hover {
+  background: #5c1430;
+}
+
+.success-card .btn-social.btn-share {
+  background: var(--env-base-dark);
+  border: 1px solid var(--env-base-dark);
+  color: #ffffff;
+}
+
+.success-card .btn-social .social-icon {
+  flex-shrink: 0;
+}
+
+@media (max-width: 380px) {
+  .success-card .share-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Fix: toast con transición funcional (sin display:none) --- */
 
 
 

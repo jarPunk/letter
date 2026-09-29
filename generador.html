@@ -651,8 +651,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       const btnGenerate = document.getElementById('btn-generate');
       const resultsSection = document.getElementById('results-section');
-      const shortLinkInput = document.getElementById('short-link');
-      const base64LinkInput = document.getElementById('base64-link');
       
       const countryCodeSelect = document.getElementById('country-code-select');
       const paraInput = document.getElementById('para-input');
@@ -703,6 +701,7 @@
       let currentLink = '';
       let selectedTheme = 'rose';
       let selectedEmoji = '❤️';
+      let emojiTouched = false; // si el usuario eligió emoji manual, el tema no lo pisa
       let previewState = 'front'; // front, back, opened, reading
 
       // 0. Modal Open / Close & 3D Interactive Controls
@@ -836,9 +835,9 @@
           document.body.setAttribute('data-theme', selectedTheme);
           if (previewEnvelope) previewEnvelope.setAttribute('data-theme', selectedTheme);
 
-          // Update default emoji for selected theme if not explicitly chosen
+          // Solo sugerir el emoji del tema si el usuario no eligió uno manual
           const defaultEmoji = btn.getAttribute('data-default-emoji');
-          if (defaultEmoji) {
+          if (defaultEmoji && !emojiTouched) {
             selectedEmoji = defaultEmoji;
             prevStamp.textContent = selectedEmoji;
             
@@ -861,10 +860,24 @@
           emojiOpts.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
 
+          emojiTouched = true;
           selectedEmoji = btn.getAttribute('data-emoji');
           prevStamp.textContent = selectedEmoji;
         });
       });
+
+      // Si el usuario edita algo tras generar, el link queda obsoleto: ocultarlo
+      const invalidateLink = () => {
+        if (!resultsSection.classList.contains('active')) return;
+        resultsSection.classList.remove('active');
+        btnGenerate.style.display = 'block';
+        btnGenerate.textContent = 'Generar Enlace Corto 🚀';
+        currentLink = '';
+      };
+      [paraInput, deInput, phoneInput, msgInput, respInput].forEach(el => {
+        if (el) el.addEventListener('input', invalidateLink);
+      });
+      if (countryCodeSelect) countryCodeSelect.addEventListener('change', invalidateLink);
 
       // 4. Link Generation
       btnGenerate.addEventListener('click', async () => {
@@ -884,18 +897,20 @@
 
         const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
 
-        // 1. Crear respaldo local Base64 URL-safe con JSON estructurado
+        // 1. Crear respaldo local Base64 URL-safe con JSON estructurado (UTF-8 seguro)
         const payloadObj = { para, de, msg, resp, phone, theme: selectedTheme, emoji: selectedEmoji };
         const jsonStr = JSON.stringify(payloadObj);
-        const utf8Bytes = encodeURIComponent(jsonStr);
-        const base64 = window.btoa(unescape(utf8Bytes))
+        const utf8BytesArray = new TextEncoder().encode(jsonStr);
+        let binaryStr = '';
+        utf8BytesArray.forEach((b) => { binaryStr += String.fromCharCode(b); });
+        const base64 = window.btoa(binaryStr)
           .replace(/\+/g, '-')
           .replace(/\//g, '_')
           .replace(/=+$/, '');
         const backupUrl = `${baseURI}index.html?c=${base64}&t=${selectedTheme}&e=${encodeURIComponent(selectedEmoji)}`;
         currentLink = backupUrl;
 
-        // 2. Si Supabase está configurado, guardar en la Base de Datos
+        // 2. Si Supabase está configurado, guardar en la Base de Datos (con theme/emoji)
         if (window.SupabaseLetterDB && window.SupabaseLetterDB.isConfigured()) {
           try {
             const letter = await window.SupabaseLetterDB.createLetter({
@@ -903,7 +918,9 @@
               sender_name: de,
               sender_phone: phone,
               message: msg,
-              acceptance_message: resp
+              acceptance_message: resp,
+              theme: selectedTheme,
+              emoji: selectedEmoji
             });
 
             const dbUrl = `${baseURI}index.html?l=${letter.short_code}&t=${selectedTheme}&e=${encodeURIComponent(selectedEmoji)}`;
@@ -912,22 +929,9 @@
             console.error('Error al guardar en Supabase:', err);
             currentLink = backupUrl;
           }
-        } else {
-          // Si Supabase aún no tiene credenciales, intentar acortador o enlace Base64
-          try {
-            const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(backupUrl)}`, {
-              mode: 'cors'
-            });
-            if (response.ok) {
-              const data = await response.json();
-              if (data.shorturl) {
-                currentLink = data.shorturl;
-              }
-            }
-          } catch (err) {
-            currentLink = backupUrl;
-          }
         }
+        // Sin Supabase se usa el enlace Base64 directamente (sin acortador externo:
+        // is.gd falla por CORS y mete latencia innecesaria).
 
         btnGenerate.textContent = 'Generar Enlace Corto';
         btnGenerate.disabled = false;
@@ -977,9 +981,11 @@
         btnShareWa.addEventListener('click', () => {
           if (!currentLink) return;
           const targetName = paraInput.value.trim();
+          // Texto plano ASCII-safe: los emojis en el parámetro ?text= se corrompen
+          // (��) en algunos móviles/WhatsApp Web. Se envía sin emojis.
           const messageText = targetName
-            ? `¡Hola ${targetName}! Te he enviado una carta de amor especial 💖✨ Mírala aquí: ${currentLink}`
-            : `¡Hola! Te he enviado una carta de amor especial 💖✨ Mírala aquí: ${currentLink}`;
+            ? `Hola ${targetName}! Te he enviado una carta especial. Mirala aqui: ${currentLink}`
+            : `Hola! Te he enviado una carta especial. Mirala aqui: ${currentLink}`;
           const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(messageText)}`;
           window.open(waUrl, '_blank');
         });

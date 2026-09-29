@@ -19,8 +19,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentLetterId = null; // Supabase UUID
   let senderPhone = null;
   
+  // --- Helpers de seguridad ---
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderMultiline(el, text) {
+    if (!el) return;
+    el.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+  }
+
+  function decodeBase64UrlUnicode(base64url) {
+    let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) base64 += '=';
+    const binary = window.atob(base64);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
+  // Ocultar el sobre hasta terminar de cargar la carta (evita flash del contenido default)
+  if (envelope) envelope.style.visibility = 'hidden';
+  if (hint) hint.textContent = 'Cargando tu carta... 💌';
+
+  const toastEl = document.getElementById('toast');
+  function showToastEarly(message) {
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.classList.add('active');
+    setTimeout(() => toastEl.classList.remove('active'), 2800);
+  }
+
   // 1. Initialize dynamic current date
   updateLetterDate();
+  const revealEnvelope = () => { if (envelope) envelope.style.visibility = 'visible'; };
   
   // 2. Initialize ambient background floating hearts
   initFloatingHearts();
@@ -119,14 +155,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnCopyLink = document.getElementById('btn-copy-link');
   const toast = document.getElementById('toast');
 
-  const showToast = (message = '¡Enlace copiado al portapapeles! 💖') => {
+  function showToast(message = '¡Enlace copiado al portapapeles! 💖') {
     if (!toast) return;
     toast.textContent = message;
     toast.classList.add('active');
     setTimeout(() => {
       toast.classList.remove('active');
     }, 2800);
-  };
+  }
 
   const copyCurrentPageUrl = async (customToastMsg) => {
     const currentUrl = window.location.href;
@@ -189,6 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const handleCloseSuccess = (e) => {
     if (e) e.stopPropagation();
     successScreen.classList.remove('active');
+    if (createOwnBtn) createOwnBtn.style.opacity = '1';
   };
   closeSuccess.addEventListener('click', handleCloseSuccess);
   closeSuccess.addEventListener('touchend', (e) => {
@@ -389,10 +426,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     let emojiParam = params.get('e') || params.get('emoji');
     const compressed = params.get('c');
     const shortCode = params.get('l') || params.get('code');
+
+    const showLetterError = (message) => {
+      revealEnvelope();
+      if (hint) hint.textContent = message;
+      showToastEarly(message);
+    };
     
     if (phoneParam) senderPhone = phoneParam;
 
     // Si viene un código de Supabase (?l=code o ?code=code)
+    let shortCodeFailed = false;
     if (shortCode && window.SupabaseLetterDB && window.SupabaseLetterDB.isConfigured()) {
       try {
         const letterData = await window.SupabaseLetterDB.getLetterByCode(shortCode);
@@ -403,7 +447,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           msg = letterData.message;
           resp = letterData.acceptance_message;
           if (letterData.sender_phone) senderPhone = letterData.sender_phone;
-          
+          // theme/emoji guardados en DB como fallback (si la URL no los trae)
+          if (letterData.theme && !themeParam) themeParam = letterData.theme;
+          if (letterData.emoji && !emojiParam) emojiParam = letterData.emoji;
+
           if (letterData.created_at) {
             const dateObj = new Date(letterData.created_at);
             const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -412,26 +459,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           // Marcar como vista en Supabase
           window.SupabaseLetterDB.markLetterViewed(letterData.id);
+        } else {
+          shortCodeFailed = true;
         }
       } catch (err) {
         console.warn('No se pudo cargar la carta desde Supabase, intentando otros parámetros:', err);
+        shortCodeFailed = true;
       }
     }
-    
-    // Si no hay parámetros de carta en la URL, redireccionar automáticamente al generador
-    if (!para && !de && !msg && !resp && !compressed && !shortCode) {
-      const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
-      window.location.href = `${baseURI}generador.html`;
-      return;
-    }
+
     if (compressed) {
       try {
-        // Decode base64 URL-safe string
-        let base64 = compressed.replace(/-/g, '+').replace(/_/g, '/');
-        while (base64.length % 4) {
-          base64 += '=';
-        }
-        const decoded = decodeURIComponent(escape(window.atob(base64)));
+        const decoded = decodeBase64UrlUnicode(compressed);
         
         if (decoded.startsWith('{')) {
           const dataObj = JSON.parse(decoded);
@@ -460,6 +499,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error decoding compressed parameters:', err);
       }
     }
+
+    // Si no hay parámetros de carta en la URL, redireccionar automáticamente al generador
+    if (!para && !de && !msg && !resp && !compressed && !shortCode) {
+      const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
+      window.location.href = `${baseURI}generador.html`;
+      return;
+    }
+
+    // Código inválido y sin respaldo: avisar en vez de mostrar carta default
+    if (shortCodeFailed && !para && !msg && !compressed) {
+      showLetterError('Esta carta no existe o fue eliminada 😢 Te llevamos al creador...');
+      setTimeout(() => {
+        const baseURI = window.location.href.split('/').slice(0, -1).join('/') + '/';
+        window.location.href = `${baseURI}generador.html`;
+      }, 2600);
+      return;
+    }
     
     if (fecha) {
       updateLetterDate(fecha);
@@ -475,7 +531,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (stampEmojiEl) stampEmojiEl.textContent = emojiParam;
     }
     
-    // Update DOM elements
+    // Update DOM elements (textContent = seguro contra XSS)
     if (para) {
       const paraEnvelope = document.getElementById('para-envelope');
       const paraLetter = document.getElementById('para-letter');
@@ -491,20 +547,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     if (msg) {
-      const mensajeEl = document.getElementById('mensaje');
-      if (mensajeEl) {
-        mensajeEl.innerHTML = msg.replace(/\n/g, '<br>');
-      }
+      renderMultiline(document.getElementById('mensaje'), msg);
     }
 
     if (resp) {
-      const successMsgEl = document.getElementById('success-message');
-      if (successMsgEl) {
-        successMsgEl.innerHTML = resp.replace(/\n/g, '<br>');
-      }
+      renderMultiline(document.getElementById('success-message'), resp);
     }
 
     setupWhatsAppButton();
+    revealEnvelope();
+    if (hint) hint.textContent = 'Haz clic sobre el sobre para ver quién te escribe...';
   }
 
   function setupWhatsAppButton() {
@@ -512,7 +564,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (senderPhone && senderPhone.trim() !== '') {
       const cleanPhone = senderPhone.replace(/\D/g, '');
       if (cleanPhone) {
-        const text = encodeURIComponent('¡Hola! Leí tu carta y dije que SÍ 💕✨');
+        // Texto sin emojis frágiles en la URL: los pares sustitutos (💕✨)
+        // se corrompen (��) si el archivo se sirve sin UTF-8 o en WhatsApp Web.
+        // Se usan escapes Unicode para que el archivo sea ASCII-safe.
+        const text = encodeURIComponent('\u00A1Hola! Le\u00ED tu carta y dije que S\u00CD');
         btnWhatsApp.href = `https://wa.me/${cleanPhone}?text=${text}`;
         btnWhatsApp.style.display = 'inline-flex';
         return;

@@ -52,37 +52,60 @@ const SupabaseLetterDB = {
   isConfigured: isSupabaseConfigured,
   
   /**
-   * Guarda una nueva carta en la base de datos
+   * Guarda una nueva carta en la base de datos.
+   * Reintenta el short_code hasta 3 veces si hay colisión (23505).
    */
-  async createLetter({ recipient_name, sender_name, sender_phone, message, acceptance_message }) {
+  async createLetter({ recipient_name, sender_name, sender_phone, message, acceptance_message, theme = null, emoji = null }) {
     const client = getSupabaseClient();
     if (!client) {
       throw new Error('Supabase no está configurado');
     }
 
-    const short_code = generateUniqueCode(8);
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const short_code = generateUniqueCode(8);
 
-    const { data, error } = await client
-      .from('letters')
-      .insert([
-        {
-          short_code,
-          recipient_name,
-          sender_name,
-          sender_phone,
-          message,
-          acceptance_message,
-          status: 'pending'
-        }
-      ])
-      .select()
-      .single();
+      const payload = {
+        short_code,
+        recipient_name,
+        sender_name,
+        sender_phone,
+        message,
+        acceptance_message,
+        status: 'pending'
+      };
+      // theme/emoji solo se envían si la tabla tiene esas columnas.
+      // Si tu tabla aún no las tiene, el insert las ignora vía try/catch.
+      if (theme) payload.theme = theme;
+      if (emoji) payload.emoji = emoji;
 
-    if (error) {
-      throw error;
+      let { data, error } = await client
+        .from('letters')
+        .insert([payload])
+        .select()
+        .single();
+
+      // Si la tabla no tiene columnas theme/emoji, reintentar sin ellas
+      if (error && (error.code === 'PGRST204' || /theme|emoji/i.test(error.message || ''))) {
+        delete payload.theme;
+        delete payload.emoji;
+        const retry = await client.from('letters').insert([payload]).select().single();
+        data = retry.data;
+        error = retry.error;
+      }
+
+      if (!error) {
+        return data;
+      }
+
+      lastError = error;
+      // 23505 = unique violation -> reintentar con otro código
+      if (error.code !== '23505') {
+        throw error;
+      }
     }
 
-    return data;
+    throw lastError || new Error('No se pudo generar un código único');
   },
 
   /**
