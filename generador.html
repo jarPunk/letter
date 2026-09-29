@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Creador de Cartas de Amor</title>
+  <title>Una Carta para Ti 💖</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Sacramento&display=swap" rel="stylesheet">
@@ -33,7 +33,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 30px 15px;
+      padding: 90px 15px 60px;
       color: #fffdf5;
       position: relative;
       transition: background 0.5s ease;
@@ -81,6 +81,12 @@
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
       position: relative;
       border: 1px solid rgba(229, 153, 164, 0.25);
+      animation: cardEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes cardEnter {
+      from { opacity: 0; transform: translateY(22px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .card::before {
@@ -92,13 +98,48 @@
       pointer-events: none;
     }
 
-    h1 {
-      font-family: var(--font-heading);
-      font-size: 28px;
+    .card-intro {
       text-align: center;
-      margin-bottom: 25px;
-      color: var(--env-base-light);
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      font-size: 14px;
+      color: rgba(255, 253, 245, 0.65);
+      margin-bottom: 22px;
+    }
+
+    .form-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 24px 0 4px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .form-step:first-of-type {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 0;
+    }
+
+    .step-num {
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--env-base-dark), var(--env-base));
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .step-title {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      color: #fff;
+      letter-spacing: 0.2px;
     }
 
     .form-group {
@@ -129,9 +170,9 @@
 
     input:focus, textarea:focus {
       outline: none;
-      border-color: var(--env-base);
-      background: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 0 10px rgba(229, 153, 164, 0.25);
+      border-color: var(--env-base-light);
+      background: rgba(255, 255, 255, 0.09);
+      box-shadow: 0 0 0 3px rgba(229, 153, 164, 0.22), 0 0 14px rgba(229, 153, 164, 0.25);
     }
 
     textarea {
@@ -174,6 +215,10 @@
       transform: scale(1.05);
     }
 
+    .theme-opt.active span::after {
+      content: ' ✓';
+    }
+
     /* Emoji Picker Grid */
     .emoji-selector {
       display: flex;
@@ -207,10 +252,48 @@
       transform: scale(1.15);
     }
 
+    .emoji-opt.emoji-add {
+      font-size: 18px;
+      border-style: dashed;
+      opacity: 0.85;
+    }
+
+    .emoji-custom-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .emoji-custom-row[hidden] {
+      display: none;
+    }
+
+    .emoji-custom-row input {
+      flex: 1;
+    }
+
+    .btn-save-emoji {
+      flex: 0 0 auto;
+      background: var(--env-base-dark);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 0 18px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.25s ease;
+    }
+
+    .btn-save-emoji:hover {
+      background: var(--env-base);
+    }
+
     .btn {
       width: 100%;
       padding: 14px;
-      background: var(--env-base-dark);
+      background: linear-gradient(135deg, var(--env-base-dark) 0%, var(--env-base) 100%);
       border: none;
       border-radius: 30px;
       color: white;
@@ -221,12 +304,35 @@
       font-family: var(--font-body);
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -80%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+    }
+
+    .btn:hover::after {
+      left: 130%;
     }
 
     .btn:hover {
-      background: var(--env-base);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
       transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    .btn:active {
+      transform: translateY(0) scale(0.98);
     }
 
     .btn:disabled {
@@ -242,7 +348,7 @@
       background: rgba(0, 0, 0, 0.25);
       border-radius: 12px;
       padding: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(37, 211, 102, 0.35);
       display: none;
     }
 
@@ -420,26 +526,41 @@
     .prev-closing { font-size: 17px; text-align: right; }
     .prev-signature { font-size: 20px; text-align: right; font-weight: bold; }
 
+    @media (prefers-reduced-motion: reduce) {
+      .card { animation: none; }
+      .btn::after { display: none; }
+      .btn:hover { transform: none; }
+      .theme-opt:hover, .emoji-opt:hover { transform: none; }
+    }
+
   </style>
 </head>
-<body>
+  <body>
+  <nav class="navbar">
+    <a href="./generador.html" class="navbar-brand">💖 Una Carta para Ti</a>
+    <div class="navbar-links">
+      <a href="https://www.instagram.com/jar_punk" target="_blank" rel="noopener noreferrer" class="navbar-ig">📸 @jar_punk</a>
+    </div>
+  </nav>
   <div class="generator-wrapper">
     <!-- FORM CARD -->
     <div class="card">
-      <h1>Creador de Cartas de Amor</h1>
-      
+      <p class="card-intro">Completa los datos y genera tu enlace para compartir 💌</p>
+
+      <div class="form-step"><span class="step-num">1</span><span class="step-title">¿Para quién es?</span></div>
+
       <div class="form-group">
-        <label for="para-input">Para (Destinatario):</label>
+        <label for="para-input">💌 Para (Destinatario):</label>
         <input type="text" id="para-input" placeholder="Ej: María García">
       </div>
 
       <div class="form-group">
-        <label for="de-input">De (Remitente):</label>
+        <label for="de-input">✍️ De (Remitente):</label>
         <input type="text" id="de-input" placeholder="Ej: Carlos Romero">
       </div>
 
       <div class="form-group">
-        <label for="phone-input">Tu Número de Teléfono / WhatsApp (Remitente):</label>
+        <label for="phone-input">📱 Tu WhatsApp (Remitente):</label>
         <div class="phone-input-group">
           <select id="country-code-select" class="country-code-select" aria-label="Código de País">
             <option value="+56">🇨🇱 +56 (Chile)</option>
@@ -469,19 +590,23 @@
         </div>
       </div>
 
+      <div class="form-step"><span class="step-num">2</span><span class="step-title">Tu mensaje</span></div>
+
       <div class="form-group">
-        <label for="msg-input">Mensaje de la Carta:</label>
+        <label for="msg-input">💬 Mensaje de la Carta:</label>
         <textarea id="msg-input" placeholder="Escribe tu mensaje especial aquí...&#10;Ej: ¿Quieres salir conmigo a compartir un momento especial? ✨💖"></textarea>
       </div>
 
       <div class="form-group">
-        <label for="resp-input">Mensaje de Aceptación (Al decir Sí):</label>
+        <label for="resp-input">🎉 Mensaje al decir Sí (opcional):</label>
         <textarea id="resp-input" placeholder="Mensaje que verá al aceptar (Opcional)&#10;Ej: ¡Sabía que dirías que sí! Ya estoy preparando todo. 🥰✨"></textarea>
       </div>
 
       <!-- Color Theme Selector -->
+      <div class="form-step"><span class="step-num">3</span><span class="step-title">El diseño</span></div>
+
       <div class="form-group">
-        <label>Elige el Color de la Carta:</label>
+        <label>🎨 Color de la Carta:</label>
         <div class="theme-selector" id="theme-selector">
           <button type="button" class="theme-opt active" data-theme="rose" data-default-emoji="❤️" style="background: linear-gradient(135deg, #e599a4, #f0b2bc);">
             <span>Rosa</span>
@@ -506,7 +631,7 @@
 
       <!-- Emoji Stamp Selector -->
       <div class="form-group">
-        <label>Emoji de la Estampilla:</label>
+        <label>✨ Estampilla:</label>
         <div class="emoji-selector" id="emoji-selector">
           <button type="button" class="emoji-opt active" data-emoji="❤️">❤️</button>
           <button type="button" class="emoji-opt" data-emoji="🌹">🌹</button>
@@ -516,6 +641,11 @@
           <button type="button" class="emoji-opt" data-emoji="🌿">🌿</button>
           <button type="button" class="emoji-opt" data-emoji="💖">💖</button>
           <button type="button" class="emoji-opt" data-emoji="💌">💌</button>
+          <button type="button" class="emoji-opt emoji-add" id="emoji-add-btn" title="Agregar tu propio emoji">➕</button>
+        </div>
+        <div class="emoji-custom-row" id="emoji-custom-row" hidden>
+          <input type="text" id="emoji-custom-input" placeholder="Pega tu emoji aquí 😎" maxlength="8" aria-label="Tu emoji personalizado">
+          <button type="button" class="btn-save-emoji" id="emoji-custom-save">Agregar</button>
         </div>
       </div>
 
@@ -642,6 +772,8 @@
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <footer class="creator-credit">Hecho con 💖 por <a href="https://www.instagram.com/jar_punk" target="_blank" rel="noopener noreferrer">@jar_punk</a></footer>
 
   <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -841,8 +973,9 @@
             selectedEmoji = defaultEmoji;
             prevStamp.textContent = selectedEmoji;
             
-            // Sync emoji selector buttons
-            emojiOpts.forEach(eb => {
+            // Sync emoji selector buttons (incluye emojis personalizados)
+            document.querySelectorAll('#emoji-selector .emoji-opt').forEach(eb => {
+              if (eb.id === 'emoji-add-btn') return;
               if (eb.getAttribute('data-emoji') === selectedEmoji) {
                 eb.classList.add('active');
               } else {
@@ -853,17 +986,75 @@
         });
       });
 
-      // 3. Emoji Picker
-      const emojiOpts = document.querySelectorAll('.emoji-opt');
-      emojiOpts.forEach(btn => {
-        btn.addEventListener('click', () => {
-          emojiOpts.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
+      // 3. Emoji Picker (delegado: funciona también con emojis personalizados)
+      const emojiSelector = document.getElementById('emoji-selector');
+      const emojiAddBtn = document.getElementById('emoji-add-btn');
+      const emojiCustomRow = document.getElementById('emoji-custom-row');
+      const emojiCustomInput = document.getElementById('emoji-custom-input');
+      const emojiCustomSave = document.getElementById('emoji-custom-save');
 
-          emojiTouched = true;
-          selectedEmoji = btn.getAttribute('data-emoji');
-          prevStamp.textContent = selectedEmoji;
-        });
+      const selectEmojiTile = (tile) => {
+        emojiSelector.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('active'));
+        tile.classList.add('active');
+        emojiTouched = true;
+        selectedEmoji = tile.getAttribute('data-emoji');
+        prevStamp.textContent = selectedEmoji;
+        invalidateLink();
+      };
+
+      emojiSelector.addEventListener('click', (e) => {
+        const btn = e.target.closest('.emoji-opt');
+        if (!btn || btn.id === 'emoji-add-btn') return;
+        selectEmojiTile(btn);
+      });
+
+      // Botón ➕: muestra el campo para pegar un emoji propio
+      emojiAddBtn.addEventListener('click', () => {
+        emojiCustomRow.hidden = !emojiCustomRow.hidden;
+        if (!emojiCustomRow.hidden) emojiCustomInput.focus();
+      });
+
+      const addCustomEmoji = () => {
+        const value = emojiCustomInput.value.trim();
+        if (!value) return;
+        // Acepta 1 emoji (hasta 4 puntos de código por ZWJ/variantes), sin espacios
+        const chars = Array.from(value.replace(/\s/g, ''));
+        if (chars.length === 0 || chars.length > 4) return;
+        const emoji = chars.join('');
+
+        // Evitar duplicados: si ya existe, solo seleccionarlo
+        const existing = emojiSelector.querySelector(`.emoji-opt[data-emoji="${CSS.escape(emoji)}"]`);
+        if (existing) {
+          selectEmojiTile(existing);
+        } else {
+          const tile = document.createElement('button');
+          tile.type = 'button';
+          tile.className = 'emoji-opt';
+          tile.setAttribute('data-emoji', emoji);
+          tile.textContent = emoji;
+          tile.title = 'Tu emoji personalizado (doble clic para quitar)';
+          // Doble clic quita un emoji personalizado
+          tile.addEventListener('dblclick', () => {
+            const wasActive = tile.classList.contains('active');
+            tile.remove();
+            if (wasActive) {
+              const first = emojiSelector.querySelector('.emoji-opt[data-emoji]');
+              if (first) selectEmojiTile(first);
+            }
+          });
+          emojiSelector.insertBefore(tile, emojiAddBtn);
+          selectEmojiTile(tile);
+        }
+        emojiCustomInput.value = '';
+        emojiCustomRow.hidden = true;
+      };
+
+      emojiCustomSave.addEventListener('click', addCustomEmoji);
+      emojiCustomInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addCustomEmoji();
+        }
       });
 
       // Si el usuario edita algo tras generar, el link queda obsoleto: ocultarlo

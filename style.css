@@ -1313,5 +1313,117 @@ body {
 
 /* --- Fix: toast con transición funcional (sin display:none) --- */
 
+/* Navbar profesional */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 22px;
+  background: rgba(10, 2, 6, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.navbar::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--env-base) 30%, var(--env-base-light) 50%, var(--env-base) 70%, transparent);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.navbar-brand {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  transition: opacity 0.25s ease;
+}
+
+.navbar-brand:hover {
+  opacity: 0.85;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-ig {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.navbar-ig:hover {
+  background: rgba(229, 153, 164, 0.25);
+  border-color: var(--env-base);
+  box-shadow: 0 0 12px rgba(229, 153, 164, 0.3);
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 10px 14px;
+  }
+
+  .navbar-brand {
+    font-size: 16px;
+  }
+
+  .navbar-ig {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+/* Crédito sutil del creador */
+.creator-credit {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: var(--font-body);
+  z-index: 500;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.creator-credit a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.25s ease;
+}
+
+.creator-credit a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
 
 
